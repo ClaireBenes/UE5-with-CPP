@@ -1,0 +1,192 @@
+#include "Gameplay/GravityGun/GravityGunComponent.h"
+
+#include "Gameplay/MainCharacter.h"
+#include "Gameplay/PickUpComponent.h"
+#include "Camera/PlayerCameraManager.h"
+
+#include "Kismet/GameplayStatics.h"
+#include "Components/StaticMeshComponent.h"
+
+UGravityGunComponent::UGravityGunComponent()
+{
+	PrimaryComponentTick.bCanEverTick = true;
+}
+
+
+void UGravityGunComponent::BeginPlay()
+{
+	Super::BeginPlay();	
+
+	// Get Camera Manager
+	CharacterCameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+
+	// Get Character
+	Character = Cast<AMainCharacter>(GetOwner());
+
+	// Convert collision channel
+	GravityGunCollisionChannel = UEngineTypes::ConvertToCollisionChannel(GravityGunTraceChannel);
+}
+
+
+void UGravityGunComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	UpdatePickUpLocation();
+}
+
+void UGravityGunComponent::OnTakeObjectInputPressed()
+{
+	// Check Camera & Character
+	if( !CharacterCameraManager.IsValid() || !Character.IsValid() )
+	{
+		return;
+	}
+
+	// If we already have a pick up in hand, let's release it
+	if( CurrentPickUp.IsValid() )
+	{
+		ReleasePickUp();
+		return;
+	}
+
+	// Compute Raycast Location
+	const FVector RaycastStart = CharacterCameraManager->GetCameraLocation();
+	const FVector RaycastEnd = RaycastStart + ( CharacterCameraManager->GetActorForwardVector() * RaycastSize );
+
+	// Prepare Raycast Structs
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(Character.Get());
+	FHitResult HitResult;
+
+	// Launch debug raycast
+#if !UE_BUILD_SHIPPING
+	if( bDrawDebugRaycast )
+	{
+		DrawDebugLine(GetWorld(), RaycastStart, RaycastEnd, FColor::Red, false, DrawDebugTime, 0, 1.0f);
+	}
+#endif
+
+	// Launch the raycast
+	const bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, RaycastStart, RaycastEnd, GravityGunCollisionChannel, Params);
+	if( !bHit )
+	{
+		//UE_LOG(LogTemp, Log, TEXT("We hit nothing !"));
+		return;
+	}
+
+	const FString HitActorName = UKismetSystemLibrary::GetDisplayName(HitResult.GetActor());
+	//UE_LOG(LogTemp, Log, TEXT("We hit %s!"), *HitActorName);
+
+	// Get Pick Up
+	CurrentPickUp = HitResult.GetActor();
+	if( !CurrentPickUp.IsValid() )
+	{
+		return;
+	}
+
+	// Get Pick Up Component
+	CurrentPickUpComponent = CurrentPickUp->FindComponentByClass<UPickUpComponent>();
+	if( !CurrentPickUpComponent.IsValid() )
+	{
+		UE_LOG(LogTemp, Warning, TEXT("We hit %s and it doesn't have a Pick Up Component!"), *HitActorName);
+		return;
+	}
+
+	// Get Pick Up Static Mesh
+	CurrentPickUpStaticMesh = CurrentPickUp->FindComponentByClass<UStaticMeshComponent>();
+	if( !CurrentPickUpStaticMesh.IsValid() )
+	{
+		UE_LOG(LogTemp, Warning, TEXT("We hit %s and it doesn't have a Static Mesh!"), *HitActorName);
+		return;
+	}
+
+	// Disable its physics
+	CurrentPickUpStaticMesh->SetSimulatePhysics(false);
+
+	// Update Collision Profile
+	PreviousCollisionProfileName = CurrentPickUpStaticMesh->GetCollisionProfileName();
+	CurrentPickUpStaticMesh->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
+}
+
+void UGravityGunComponent::OnThrowObjectInputPressed()
+{
+	float difference = PickUpMaxThrowForce - PickUpMinThrowForce;
+	difference /= PickUpTimeToReachMaxForce;
+
+	// Add force while pressing
+	PickUpThrowForce += 10;
+	PickUpThrowForce = FMath::Clamp(PickUpThrowForce, PickUpMinThrowForce, PickUpMaxThrowForce);
+}
+
+void UGravityGunComponent::OnThrowObjectInputReleased()
+{
+	// Throw the pick up if we have one
+	if( CurrentPickUp.IsValid() )
+	{
+		ReleasePickUp(true);
+	}
+}
+
+
+void UGravityGunComponent::UpdatePickUpLocation()
+{
+	// Check pointers
+	if( !CurrentPickUp.IsValid() || !CharacterCameraManager.IsValid() )
+	{
+		return;
+	}
+
+	// Compute and apply new transform
+	const FRotator CameraRotation = CharacterCameraManager->GetCameraRotation();
+	const FVector CameraLocation = CharacterCameraManager->GetCameraLocation();
+	const FVector CameraForward = CharacterCameraManager->GetActorForwardVector();
+
+	const FVector NewPickUpLocation = CameraLocation + ( CameraForward * PickUpHoldDistance );
+	CurrentPickUp->SetActorLocationAndRotation(NewPickUpLocation, CameraRotation);
+}
+
+void UGravityGunComponent::ReleasePickUp(bool bThrow )
+{
+	if( CurrentPickUpStaticMesh.IsValid() )
+	{
+		// Enable back physics and collision
+		CurrentPickUpStaticMesh->SetCollisionProfileName(PreviousCollisionProfileName);
+		CurrentPickUpStaticMesh->SetSimulatePhysics(true);
+
+		// Throw the pick up
+		if( bThrow && CharacterCameraManager.IsValid() )
+		{
+			// Add Impulse 
+			const FVector Impulse = CharacterCameraManager->GetActorForwardVector() * PickUpThrowForce;
+			CurrentPickUpStaticMesh->AddImpulse(Impulse * 10);
+
+			// Add Angular Impulse
+			const FVector AngularImpulse = FVector(
+				FMath::RandRange(-PickUpMaxAngularForce.X, PickUpMaxAngularForce.X), 
+				FMath::RandRange(-PickUpMaxAngularForce.Y, PickUpMaxAngularForce.Y), 
+				FMath::RandRange(-PickUpMaxAngularForce.Z, PickUpMaxAngularForce.Z));
+			CurrentPickUpStaticMesh->AddAngularImpulseInDegrees(AngularImpulse * 100);
+		}
+	}
+
+	// Clear Pointers
+	CurrentPickUpStaticMesh = nullptr;
+	CurrentPickUpComponent = nullptr;
+	CurrentPickUp = nullptr;
+
+	PickUpThrowForce = PickUpMinThrowForce;
+}
+
+void UGravityGunComponent::OnChangeRaycastSize(const float Value)
+{
+	RaycastSize = FMath::Clamp(RaycastSize + ( RaycastSize * Value * 10 ), RaycastMinSize, RaycastMaxSize);
+}
+
+void UGravityGunComponent::OnAddForceMultiplier()
+{
+	//TODO : Toggle the force multiplier
+}
+
+
+
