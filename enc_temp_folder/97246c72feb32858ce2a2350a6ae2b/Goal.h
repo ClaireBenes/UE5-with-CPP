@@ -20,6 +20,8 @@ protected:
 
 // Collision Box
 public:
+	//void FOnGoalScoredDelegate(float CurrentScore, FString GoalName);
+
 	FOnGoalScoredDelegate OnGoalScored;
 
 protected:

@@ -12,7 +12,6 @@ class UE5INTRO_API UScoreComponent : public UActorComponent
 
 public:	
 	UScoreComponent();	
-
 	void ShowGoalsScore();
 
 protected:

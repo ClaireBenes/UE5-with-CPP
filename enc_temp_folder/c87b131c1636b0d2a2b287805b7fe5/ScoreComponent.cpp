@@ -8,6 +8,21 @@ UScoreComponent::UScoreComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
+void UScoreComponent::ShowGoalsScore()
+{
+	if( GoalScores.Num() == 0 )
+	{
+		UE_LOG(LogTemp, Log, TEXT("No goals have been scored yet."));
+		return;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("=== Current Goal Scores ==="));
+	for( const TPair<FString, uint32>& Entry : GoalScores )
+	{
+		UE_LOG(LogTemp, Log, TEXT("'%s': %d points"), *Entry.Key, Entry.Value);
+	}
+}
+
 void UScoreComponent::BeginPlay()
 {	
 	Super::BeginPlay();
@@ -28,20 +43,5 @@ void UScoreComponent::BeginPlay()
 void UScoreComponent::OnScoreUpdated(unsigned int CurrentScore, FString GoalName)
 {
 	GoalScores.FindOrAdd(GoalName) = CurrentScore;
-}
-
-void UScoreComponent::ShowGoalsScore()
-{
-	if( GoalScores.Num() == 0 )
-	{
-		UE_LOG(LogTemp, Log, TEXT("No goals have been scored yet."));
-		return;
-	}
-
-	UE_LOG(LogTemp, Log, TEXT("=== Current Goal Scores ==="));
-	for( const TPair<FString, uint32>& Entry : GoalScores )
-	{
-		UE_LOG(LogTemp, Log, TEXT("'%s': %d points"), *Entry.Key, Entry.Value);
-	}
 }
 
