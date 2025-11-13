@@ -49,8 +49,9 @@ void AGoal::OnGoalOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Othe
 
 	// Update the score and display it
 	Score++;
-	const FString GoalName = UKismetSystemLibrary::GetDisplayName(OtherActor);
-	UE_LOG(LogTemp, Log, TEXT("The score of %s is %d"), *GoalName, Score);
+	const FString GoalName = UKismetSystemLibrary::GetDisplayName(this);
+	//UE_LOG(LogTemp, Log, TEXT("The score of %s is %d"), *GoalName, Score);
+
+	OnGoalScored.Broadcast(Score, GoalName);
 	
 }
-

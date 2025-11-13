@@ -4,6 +4,8 @@
 #include "GameFramework/Actor.h"
 #include "Goal.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGoalScoredDelegate, unsigned int, CurrentScore, FString, GoalName);
+
 UCLASS(Abstract)
 class UE5INTRO_API AGoal : public AActor
 {
@@ -17,6 +19,11 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 // Collision Box
+public:
+	//void FOnGoalScoredDelegate(float CurrentScore, FString GoalName);
+
+	FOnGoalScoredDelegate OnGoalScored;
+
 protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<class UBoxComponent> CollisionBox = nullptr;
