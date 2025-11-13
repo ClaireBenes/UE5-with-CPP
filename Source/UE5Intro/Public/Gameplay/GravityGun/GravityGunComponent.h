@@ -38,11 +38,11 @@ protected:
 	TEnumAsByte<ETraceTypeQuery> GravityGunTraceChannel;
 	ECollisionChannel GravityGunCollisionChannel;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun", meta = ( ClampMin = "100.0", ClampMax = "1000.0", Units = "Centimeters" ))
+	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun|Raycast", meta = ( ClampMin = "100.0", ClampMax = "1000.0", Units = "Centimeters" ))
 	float RaycastMaxSize = 1000.0f;
-	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun", meta = ( ClampMin = "100.0", ClampMax = "1000.0", Units = "Centimeters" ))
+	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun|Raycast", meta = ( ClampMin = "100.0", ClampMax = "1000.0", Units = "Centimeters" ))
 	float RaycastMinSize = 100.0f;
-	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun", meta = ( Units = "Centimeters" ))
+	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun|Raycast", meta = ( Units = "Centimeters" ))
 	float RaycastSize = 500.0f;
 // End of Collision
 
@@ -65,19 +65,22 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun", meta = ( ClampMin = "100.0", ClampMax = "1000.0" ))
 	float PickUpHoldDistance = 150.0f;
-	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun")
-	float PickUpThrowForce = 2000.0;
-	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun", meta = ( ClampMin = "100.0", ClampMax = "10000.0" ))
+	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun|Throw", meta = ( ClampMin = "100.0", ClampMax = "10000.0" ))
 	float PickUpMaxThrowForce = 5000.0;
-	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun", meta = ( ClampMin = "100.0", ClampMax = "10000.0" ))
-	float PickUpMinThrowForce = PickUpThrowForce;
-	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun")
-	float PickUpForceMultiplier = 0.0f;
-
-	float PickUpTimeToReachMaxForce = 0.0f;
-
+	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun|Throw", meta = ( ClampMin = "100.0", ClampMax = "10000.0" ))
+	float PickUpMinThrowForce = 1000;
+	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun|Throw")
+	float PickUpForceMultiplier = 5.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun|Throw")
+	float PickUpTimeToReachMaxForce = 2.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun")
 	FVector PickUpMaxAngularForce = FVector(1000.0f, 1000.0f, 1000.0f);
+
+	float PickUpThrowForce = PickUpMinThrowForce;
+	float PickUpCurrentForceMultiplier = 1.0f;
+	float PickUpCurrentThrowTime = 0.0f;
+
+	bool bPickUpHasForceMultiplier = false;
 
 protected:
 	void UpdatePickUpLocation();

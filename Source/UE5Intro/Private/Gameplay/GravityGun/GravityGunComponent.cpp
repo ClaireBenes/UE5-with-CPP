@@ -111,11 +111,11 @@ void UGravityGunComponent::OnTakeObjectInputPressed()
 
 void UGravityGunComponent::OnThrowObjectInputPressed()
 {
-	float difference = PickUpMaxThrowForce - PickUpMinThrowForce;
-	difference /= PickUpTimeToReachMaxForce;
-
 	// Add force while pressing
-	PickUpThrowForce += 10;
+	PickUpCurrentThrowTime += GetWorld()->GetDeltaSeconds();
+	float Alpha = FMath::Clamp(PickUpCurrentThrowTime / PickUpTimeToReachMaxForce, 0.0f, 1.0f);
+
+	PickUpThrowForce = FMath::Lerp(PickUpMinThrowForce, PickUpMaxThrowForce, Alpha);
 	PickUpThrowForce = FMath::Clamp(PickUpThrowForce, PickUpMinThrowForce, PickUpMaxThrowForce);
 }
 
@@ -159,14 +159,14 @@ void UGravityGunComponent::ReleasePickUp(bool bThrow )
 		{
 			// Add Impulse 
 			const FVector Impulse = CharacterCameraManager->GetActorForwardVector() * PickUpThrowForce;
-			CurrentPickUpStaticMesh->AddImpulse(Impulse * 10);
+			CurrentPickUpStaticMesh->AddImpulse(Impulse * 10 * PickUpCurrentForceMultiplier);
 
 			// Add Angular Impulse
 			const FVector AngularImpulse = FVector(
 				FMath::RandRange(-PickUpMaxAngularForce.X, PickUpMaxAngularForce.X), 
 				FMath::RandRange(-PickUpMaxAngularForce.Y, PickUpMaxAngularForce.Y), 
 				FMath::RandRange(-PickUpMaxAngularForce.Z, PickUpMaxAngularForce.Z));
-			CurrentPickUpStaticMesh->AddAngularImpulseInDegrees(AngularImpulse * 100);
+			CurrentPickUpStaticMesh->AddAngularImpulseInDegrees(AngularImpulse * 100 );
 		}
 	}
 
@@ -176,6 +176,7 @@ void UGravityGunComponent::ReleasePickUp(bool bThrow )
 	CurrentPickUp = nullptr;
 
 	PickUpThrowForce = PickUpMinThrowForce;
+	PickUpCurrentThrowTime = 0.0f;
 }
 
 void UGravityGunComponent::OnChangeRaycastSize(const float Value)
@@ -185,7 +186,18 @@ void UGravityGunComponent::OnChangeRaycastSize(const float Value)
 
 void UGravityGunComponent::OnAddForceMultiplier()
 {
-	//TODO : Toggle the force multiplier
+	bPickUpHasForceMultiplier = !bPickUpHasForceMultiplier;
+
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0, FColor::Red, FString::Printf(TEXT("Force: %d"), bPickUpHasForceMultiplier));
+
+	if( bPickUpHasForceMultiplier )
+	{
+		PickUpCurrentForceMultiplier = PickUpForceMultiplier;
+	}
+	else
+	{
+		PickUpCurrentForceMultiplier = 1.0f;
+	}
 }
 
 
