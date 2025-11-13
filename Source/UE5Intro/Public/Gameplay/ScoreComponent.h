@@ -19,9 +19,15 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-	void OnScoreUpdated(unsigned int CurrentScore, FString GoalName);
+	void OnScoreUpdated(ETeamType TeamType);
 
 protected:
-	TArray<AActor*> Goals;
-	TMap<FString, uint32> GoalScores;
+	TArray<class AGoal*> Goals;
+	TMap<ETeamType, uint32> GoalScores;
+
+// Pick Up In Goal
+public:
+	void CountPickUpInGoal();
+
+// end of Pick Up In Goal
 };

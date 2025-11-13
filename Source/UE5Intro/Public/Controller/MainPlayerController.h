@@ -30,14 +30,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
 	TObjectPtr<class UInputAction> InputActionJump = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
-	TObjectPtr<class UInputAction> InputActionShowScore = nullptr;
-
 protected:
 	void MovePlayer(const struct FInputActionValue& Value);
 	void Look(const struct FInputActionValue& Value);
 	void Jump();
-	void ShowScore();
 // End of Inputs
 
 
@@ -52,5 +48,23 @@ public:
 	virtual void AddPitchInput(float Val) override;
 	virtual void AddYawInput(float Val) override;
 // End of Mouse Sensitivity
+
+// Goals Score
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
+	TObjectPtr<class UInputAction> InputActionShowScore = nullptr;
+
+protected:
+	void ShowScore();
+// End of Goals Score
+
+// Pick Up In Goal
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
+	TObjectPtr<class UInputAction> InputActionPickUpInGoal = nullptr;
+
+protected:
+	void PickUpInGoal();
+// Enf of Pick Up In Goal
 	
 };

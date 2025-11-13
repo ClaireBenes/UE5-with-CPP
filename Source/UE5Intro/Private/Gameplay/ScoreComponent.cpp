@@ -12,22 +12,46 @@ void UScoreComponent::BeginPlay()
 {	
 	Super::BeginPlay();
 
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGoal::StaticClass(), Goals);
-	for( int i = 0; i < Goals.Num(); i++ )
-	{
-		if( Goals[i] )
-		{
-			Cast<AGoal>(Goals[i])->OnGoalScored.AddUniqueDynamic(this, &UScoreComponent::OnScoreUpdated);
+	TArray<AActor*> Actors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGoal::StaticClass(), Actors);
 
-			const FString GoalName = UKismetSystemLibrary::GetDisplayName(Goals[i]);
-			GoalScores.FindOrAdd(GoalName) = 0;
+	for( int i = 0; i < Actors.Num(); i++ )
+	{
+		AGoal* GoalCasted = Cast<AGoal>(Actors[i]);
+		if( GoalCasted )
+		{
+			Goals.Add(GoalCasted);
+			GoalCasted->OnGoalScored.AddUniqueDynamic(this, &UScoreComponent::OnScoreUpdated);
+
+			GoalScores.FindOrAdd(GoalCasted->GetTeamType()) = 0;
 		}
 	}
 }
 
-void UScoreComponent::OnScoreUpdated(unsigned int CurrentScore, FString GoalName)
+void UScoreComponent::OnScoreUpdated(ETeamType TeamType)
 {
-	GoalScores.FindOrAdd(GoalName) = CurrentScore;
+	unsigned int& TeamScore = GoalScores.FindOrAdd(TeamType);
+	TeamScore++;
+}
+
+void UScoreComponent::CountPickUpInGoal()
+{
+	if( !Goals.Num() )
+	{
+		UE_LOG(LogTemp, Log, TEXT("There is no goals on the map !"));
+		return;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("=== Current Pick Up in Goals ==="));
+	for( AGoal* Goal : Goals )
+	{
+		if( Goal )
+		{
+			unsigned int PickUpInGoal = Goal->CountPickUpInGoal();
+			const FString GoalName = UKismetSystemLibrary::GetDisplayName(Goal);
+			UE_LOG(LogTemp, Log, TEXT("There is %d pick up inside the goal %s"), PickUpInGoal, *GoalName);
+		}
+	}
 }
 
 void UScoreComponent::ShowGoalsScore()
@@ -39,9 +63,10 @@ void UScoreComponent::ShowGoalsScore()
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("=== Current Goal Scores ==="));
-	for( const TPair<FString, uint32>& Entry : GoalScores )
+	for( const TPair<ETeamType, uint32>& Entry : GoalScores )
 	{
-		UE_LOG(LogTemp, Log, TEXT("'%s': %d points"), *Entry.Key, Entry.Value);
+		FString TeamName = StaticEnum<ETeamType>()->GetValueAsString(Entry.Key);
+		UE_LOG(LogTemp, Log, TEXT("%s: %d points"), *TeamName, Entry.Value);
 	}
 }
 

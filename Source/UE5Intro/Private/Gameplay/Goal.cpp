@@ -39,6 +39,11 @@ void AGoal::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	}
 }
 
+ETeamType AGoal::GetTeamType()
+{
+	return TeamType;
+}
+
 void AGoal::OnGoalOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	// Check if it's a Pick Up
@@ -49,9 +54,51 @@ void AGoal::OnGoalOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Othe
 
 	// Update the score and display it
 	Score++;
-	const FString GoalName = UKismetSystemLibrary::GetDisplayName(this);
-	//UE_LOG(LogTemp, Log, TEXT("The score of %s is %d"), *GoalName, Score);
-
-	OnGoalScored.Broadcast(Score, GoalName);
+	OnGoalScored.Broadcast(TeamType);
 	
+}
+
+unsigned int AGoal::CountPickUpInGoal()
+{
+	if( !CollisionBox )
+	{
+		return 0;
+	}
+
+	// We can use Overlapping Actors but we will need to cast them after
+	if( bUseOverlappingActorsFunction )
+	{
+		// Get Actors
+		TArray<AActor*> OverlappingActors;
+		CollisionBox->GetOverlappingActors(OverlappingActors);
+
+		// Check if they are Pick Ups
+		unsigned int PickUpInGoal = 0;
+		for( AActor* OverlappingActor : OverlappingActors )
+		{
+			if( OverlappingActor->FindComponentByClass<UPickUpComponent>() )
+			{
+				PickUpInGoal++;
+			}
+		}
+		return PickUpInGoal;
+	}
+	else
+	{
+		// Prepare Box Cast location
+		const FVector GoalLocation = GetActorLocation();
+		const FRotator GoalRotation = GetActorRotation();
+		const FVector ScaledBoxExtent = CollisionBox->GetScaledBoxExtent();
+
+		// Prepare Box Cast Array
+		TArray<FHitResult> HitResults;
+		TArray<AActor*> ActorsToIgnore;
+
+		UKismetSystemLibrary::BoxTraceMulti(GetWorld(), GoalLocation, GoalLocation, ScaledBoxExtent, GoalRotation,
+			GoalTraceChannel, false, ActorsToIgnore, EDrawDebugTrace::None, HitResults, true);
+
+		// Return result
+		const unsigned int PickUpInGoal = HitResults.Num();
+		return PickUpInGoal;
+	}	
 }

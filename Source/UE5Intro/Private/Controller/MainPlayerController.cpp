@@ -51,6 +51,10 @@ void AMainPlayerController::SetupInputComponent()
 	{
 		EnhancedInputComponent->BindAction(InputActionShowScore, ETriggerEvent::Triggered, this, &AMainPlayerController::ShowScore);
 	}
+	if( InputActionPickUpInGoal )
+	{
+		EnhancedInputComponent->BindAction(InputActionPickUpInGoal, ETriggerEvent::Triggered, this, &AMainPlayerController::PickUpInGoal);
+	}
 }
 
 void AMainPlayerController::SetPawn(APawn* InPawn)
@@ -61,6 +65,8 @@ void AMainPlayerController::SetPawn(APawn* InPawn)
 	if( !Character.IsValid() )
 	{
 		Character = Cast<AMainCharacter>(InPawn);
+
+		ScoreComponent = Character->FindComponentByClass<UScoreComponent>();
 
 		GravityGunController = FindComponentByClass<UGravityGunController>();
 		if( GravityGunController.IsValid() )
@@ -129,7 +135,6 @@ void AMainPlayerController::Jump()
 
 void AMainPlayerController::ShowScore()
 {
-	ScoreComponent = Character->FindComponentByClass<UScoreComponent>();
 	if( ScoreComponent.IsValid() )
 	{
 		ScoreComponent->ShowGoalsScore();
@@ -144,4 +149,12 @@ void AMainPlayerController::AddPitchInput(float Val)
 void AMainPlayerController::AddYawInput(float Val)
 {
 	Super::AddYawInput(Val * MouseSensitivityX);
+}
+
+void AMainPlayerController::PickUpInGoal()
+{
+	if( ScoreComponent.IsValid() )
+	{
+		ScoreComponent->CountPickUpInGoal();
+	}
 }

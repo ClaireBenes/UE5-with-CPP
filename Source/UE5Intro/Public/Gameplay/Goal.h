@@ -4,7 +4,16 @@
 #include "GameFramework/Actor.h"
 #include "Goal.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGoalScoredDelegate, unsigned int, CurrentScore, FString, GoalName);
+UENUM()
+enum class ETeamType : uint8
+{
+	None UMETA(Hidden),
+	TheBest,
+	Whatever,
+	MAX UMETA(Hidden),
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGoalScoredDelegate, ETeamType, TeamType);
 
 UCLASS(Abstract)
 class UE5INTRO_API AGoal : public AActor
@@ -17,6 +26,15 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+// Team Score
+public:
+	ETeamType GetTeamType();
+
+protected:
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+	ETeamType TeamType = ETeamType::None;
+// End of Team Score
 
 // Collision Box
 public:
@@ -33,4 +51,16 @@ protected:
 	void OnGoalOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, 
 		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 // end of Collision Box
+
+// Pick Up In Goal
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Goal")
+	bool bUseOverlappingActorsFunction = false;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Goal")
+	TEnumAsByte<ETraceTypeQuery>GoalTraceChannel;
+
+public:
+	unsigned int CountPickUpInGoal();
+// End of Pick Up In Goal
 };
