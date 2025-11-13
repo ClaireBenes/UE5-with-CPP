@@ -65,8 +65,8 @@ void UScoreComponent::ShowGoalsScore()
 	UE_LOG(LogTemp, Log, TEXT("=== Current Goal Scores ==="));
 	for( const TPair<ETeamType, uint32>& Entry : GoalScores )
 	{
-		FString TeamName = StaticEnum<ETeamType>()->GetValueAsString(Entry.Key);
-		UE_LOG(LogTemp, Log, TEXT("%s: %d points"), *TeamName, Entry.Value);
+		FString TeamName = StaticEnum<ETeamType>()->GetNameStringByValue(static_cast<int64>( Entry.Key ));
+		UE_LOG(LogTemp, Log, TEXT("%s Team has %d points"), *TeamName, Entry.Value);
 	}
 }
 
