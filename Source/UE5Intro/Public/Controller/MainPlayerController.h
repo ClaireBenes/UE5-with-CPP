@@ -17,6 +17,7 @@ public:
 protected:
 	TWeakObjectPtr<class AMainCharacter> Character = nullptr;
 	TWeakObjectPtr<class UGravityGunController> GravityGunController = nullptr;
+	TWeakObjectPtr<class UScoreComponent> ScoreComponent = nullptr;
 	
 // Inputs
 protected:
@@ -29,10 +30,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
 	TObjectPtr<class UInputAction> InputActionJump = nullptr;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
+	TObjectPtr<class UInputAction> InputActionShowScore = nullptr;
+
 protected:
 	void MovePlayer(const struct FInputActionValue& Value);
 	void Look(const struct FInputActionValue& Value);
 	void Jump();
+	void ShowScore();
 // End of Inputs
 
 

@@ -10,6 +10,7 @@
 //Gameplay
 #include "Gameplay/MainCharacter.h"
 #include "Controller/GravityGunController.h"
+#include "Gameplay/ScoreComponent.h"
 
 
 void AMainPlayerController::SetupInputComponent()
@@ -45,6 +46,10 @@ void AMainPlayerController::SetupInputComponent()
 	if( InputActionJump )
 	{
 		EnhancedInputComponent->BindAction(InputActionJump, ETriggerEvent::Triggered, this, &AMainPlayerController::Jump);
+	}
+	if( InputActionShowScore)
+	{
+		EnhancedInputComponent->BindAction(InputActionShowScore, ETriggerEvent::Triggered, this, &AMainPlayerController::ShowScore);
 	}
 }
 
@@ -120,6 +125,15 @@ void AMainPlayerController::Jump()
 	}
 
 	Character->Jump();
+}
+
+void AMainPlayerController::ShowScore()
+{
+	ScoreComponent = Character->FindComponentByClass<UScoreComponent>();
+	if( ScoreComponent.IsValid() )
+	{
+		ScoreComponent->ShowGoalsScore();
+	}
 }
 
 void AMainPlayerController::AddPitchInput(float Val)
