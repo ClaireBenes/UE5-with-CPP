@@ -107,6 +107,26 @@ void UGravityGunComponent::OnTakeObjectInputPressed()
 	// Update Collision Profile
 	PreviousCollisionProfileName = CurrentPickUpStaticMesh->GetCollisionProfileName();
 	CurrentPickUpStaticMesh->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
+
+	// Check Pick Up Type
+	switch( CurrentPickUpComponent->GetPickUpType() )
+	{
+		case EPickUpType::DestroyAfterPickUp:
+			// Launch the timer
+			CurrentPickUpComponent->StartPickUpDestructionTimer();
+
+			// Bind to the destroy event
+			CurrentPickUpComponent->OnPickDestroyed.AddUniqueDynamic(this, &UGravityGunComponent::OnHoldPickUpDestroy);
+			break;
+
+		case EPickUpType::DestroyAfterThrow:
+			// Clear the timer so it doesn't disapear from our hands
+			CurrentPickUpComponent->ClearDestructionTimer();
+			break;
+
+		default:
+			break;
+	}
 }
 
 void UGravityGunComponent::OnThrowObjectInputPressed()
@@ -148,6 +168,12 @@ void UGravityGunComponent::UpdatePickUpLocation()
 
 void UGravityGunComponent::ReleasePickUp(bool bThrow )
 {
+	// Unbind from the destruction event if necessary
+	if( CurrentPickUpComponent.IsValid() && ( CurrentPickUpComponent->GetPickUpType() == EPickUpType::DestroyAfterPickUp ) )
+	{
+		CurrentPickUpComponent->OnPickDestroyed.RemoveDynamic(this, &UGravityGunComponent::OnHoldPickUpDestroy);
+	}
+
 	if( CurrentPickUpStaticMesh.IsValid() )
 	{
 		// Enable back physics and collision
@@ -170,6 +196,12 @@ void UGravityGunComponent::ReleasePickUp(bool bThrow )
 		}
 	}
 
+	// Check if destruction timer is required
+	if( CurrentPickUpComponent.IsValid() && ( CurrentPickUpComponent->GetPickUpType() == EPickUpType::DestroyAfterThrow ))
+	{
+		CurrentPickUpComponent->StartPickUpDestructionTimer();
+	}
+
 	// Clear Pointers
 	CurrentPickUpStaticMesh = nullptr;
 	CurrentPickUpComponent = nullptr;
@@ -177,6 +209,11 @@ void UGravityGunComponent::ReleasePickUp(bool bThrow )
 
 	PickUpThrowForce = PickUpMinThrowForce;
 	PickUpCurrentThrowTime = 0.0f;
+}
+
+void UGravityGunComponent::OnHoldPickUpDestroy()
+{
+	ReleasePickUp();
 }
 
 void UGravityGunComponent::OnChangeRaycastSize(const float Value)

@@ -71,7 +71,7 @@ protected:
 	float PickUpMinThrowForce = 1000;
 	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun|Throw")
 	float PickUpForceMultiplier = 5.0f;
-	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun|Throw")
+	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun|Throw", meta = ( ClampMin = "0.0", ClampMax = "10.0" ))
 	float PickUpTimeToReachMaxForce = 2.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun")
 	FVector PickUpMaxAngularForce = FVector(1000.0f, 1000.0f, 1000.0f);
@@ -85,6 +85,9 @@ protected:
 protected:
 	void UpdatePickUpLocation();
 	void ReleasePickUp(bool bThrow = false);
+
+	UFUNCTION()
+	void OnHoldPickUpDestroy();
 // End of Pick Up
 
 };
