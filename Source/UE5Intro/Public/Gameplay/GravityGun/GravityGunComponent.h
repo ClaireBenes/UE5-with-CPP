@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Gameplay/GravityGun/GravityDataAsset.h"
 #include "GravityGunComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPickUpTakenDelegate, int, NumPickUpTaken);
@@ -14,8 +15,15 @@ class UE5INTRO_API UGravityGunComponent : public UActorComponent
 public:	
 	UGravityGunComponent();
 
+// This function can only be used in Editor
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
+
 protected:
 	virtual void BeginPlay() override;
+
+	void OnUpdateRaycastSize();
 
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;	
@@ -113,5 +121,11 @@ protected:
 	UFUNCTION()
 	void OnHoldPickUpDestroy();
 // End of Pick Up
+
+// Data Asset
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun|Data Asset")
+	TObjectPtr<UGravityDataAsset> GravityGunDataAsset = nullptr;
+// End of Data Asset
 
 };

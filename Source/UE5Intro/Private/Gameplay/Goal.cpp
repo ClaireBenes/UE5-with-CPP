@@ -3,10 +3,11 @@
 // Gameplay
 #include "Components/BoxComponent.h"
 #include "Gameplay/PickUpComponent.h"
-#include "Kismet/KismetSystemLibrary.h"
+#include "Components/PointLightComponent.h"
 
 // Engine
 #include "UObject/ObjectSaveContext.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 AGoal::AGoal(const FObjectInitializer& ObjectInitializer)
 {
@@ -18,6 +19,26 @@ AGoal::AGoal(const FObjectInitializer& ObjectInitializer)
 	{
 		SetRootComponent(CollisionBox);
 	}
+
+	// Create a point light
+	PointLightComponent = ObjectInitializer.CreateOptionalDefaultSubobject<UPointLightComponent>(this, TEXT("Point Light"));
+	if( PointLightComponent )
+	{
+		PointLightComponent->SetupAttachment(RootComponent);
+	}
+}
+
+void AGoal::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+
+#if WITH_EDITOR
+	// Update Goal Light only for an instance and if the object is loaded and can be saved
+	if( !IsTemplate() && !HasAnyFlags(RF_Transient | RF_NeedLoad) )
+	{
+		UpdatePointLight();
+	}
+#endif
 }
 
 void AGoal::BeginPlay()
@@ -120,4 +141,31 @@ unsigned int AGoal::CountPickUpInGoal()
 		const unsigned int PickUpInGoal = HitResults.Num();
 		return PickUpInGoal;
 	}	
+}
+
+void AGoal::UpdatePointLight()
+{
+	// Checl the light
+	if( !PointLightComponent )
+	{
+		return;
+	}
+
+	// Find the correct color
+	FLinearColor LightColor;
+	switch( TeamType )
+	{
+		case ETeamType::Blue:
+			LightColor = FLinearColor::Blue;
+			break;
+
+		case ETeamType::Red:
+			LightColor = FLinearColor::Red;
+			break;
+
+		default:
+			break;
+	}
+
+	PointLightComponent->SetLightColor(LightColor);
 }

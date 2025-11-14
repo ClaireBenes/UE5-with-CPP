@@ -22,6 +22,7 @@ class UE5INTRO_API AGoal : public AActor
 	
 public:	
 	AGoal(const FObjectInitializer& ObjectInitializer);
+	virtual void OnConstruction(const FTransform& Transform) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -64,4 +65,13 @@ protected:
 public:
 	unsigned int CountPickUpInGoal();
 // End of Pick Up In Goal
+
+// Light
+protected:
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class UPointLightComponent> PointLightComponent = nullptr;
+
+protected:
+	void UpdatePointLight();
+// End of Light
 };

@@ -13,6 +13,24 @@ UGravityGunComponent::UGravityGunComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
+#if WITH_EDITOR
+void UGravityGunComponent::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	// Get what was changed
+	FName PropertyChanged = ( PropertyChangedEvent.Property ) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+
+	// Check if the instance is initialized
+	if( !HasAnyFlags(RF_Transient | RF_NeedLoad ))
+	{
+		if( PropertyChanged == GET_MEMBER_NAME_CHECKED(UGravityGunComponent, RaycastSize) )
+		{
+			OnUpdateRaycastSize();
+		}
+	}
+}
+#endif
 
 void UGravityGunComponent::BeginPlay()
 {
@@ -26,6 +44,14 @@ void UGravityGunComponent::BeginPlay()
 
 	// Convert collision channel
 	GravityGunCollisionChannel = UEngineTypes::ConvertToCollisionChannel(GravityGunTraceChannel);
+}
+
+void UGravityGunComponent::OnUpdateRaycastSize()
+{
+	if( RaycastSize < RaycastMinSize )
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Raycast Size might be too short !"));
+	}
 }
 
 
@@ -155,11 +181,22 @@ void UGravityGunComponent::ReleasePickUp(bool bThrow )
 			CurrentPickUpStaticMesh->AddImpulse(Impulse * 10 * PickUpCurrentForceMultiplier);
 
 			// Add Angular Impulse
-			const FVector AngularImpulse = FVector(
-				FMath::RandRange(-PickUpMaxAngularForce.X, PickUpMaxAngularForce.X), 
-				FMath::RandRange(-PickUpMaxAngularForce.Y, PickUpMaxAngularForce.Y), 
-				FMath::RandRange(-PickUpMaxAngularForce.Z, PickUpMaxAngularForce.Z));
-			CurrentPickUpStaticMesh->AddAngularImpulseInDegrees(AngularImpulse * 100 );
+			FVector AngularImpulse = FVector::ZeroVector;
+			if( GravityGunDataAsset )
+			{
+				AngularImpulse = FVector(
+					FMath::RandRange(-GravityGunDataAsset->AngularForce.X, GravityGunDataAsset->AngularForce.X),
+					FMath::RandRange(-GravityGunDataAsset->AngularForce.Y, GravityGunDataAsset->AngularForce.Y),
+					FMath::RandRange(-GravityGunDataAsset->AngularForce.Z, GravityGunDataAsset->AngularForce.Z));
+			}
+			else
+			{
+				AngularImpulse = FVector(
+					FMath::RandRange(-PickUpMaxAngularForce.X, PickUpMaxAngularForce.X),
+					FMath::RandRange(-PickUpMaxAngularForce.Y, PickUpMaxAngularForce.Y),
+					FMath::RandRange(-PickUpMaxAngularForce.Z, PickUpMaxAngularForce.Z));
+			}
+			CurrentPickUpStaticMesh->AddAngularImpulseInDegrees(AngularImpulse * 100);
 		}
 	}
 
