@@ -5,6 +5,9 @@
 #include "Gameplay/PickUpComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
+// Engine
+#include "UObject/ObjectSaveContext.h"
+
 AGoal::AGoal(const FObjectInitializer& ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -36,6 +39,22 @@ void AGoal::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	if( CollisionBox )
 	{
 		CollisionBox->OnComponentBeginOverlap.RemoveDynamic(this, &AGoal::OnGoalOverlap);
+	}
+}
+
+void AGoal::PreSave(FObjectPreSaveContext ObjectSaveContext)
+{
+	Super::PreSave(ObjectSaveContext);
+
+	// Make sure that we're dealing with an instance
+	if( GetWorld() && !IsTemplate() )
+	{
+		// Make sure that the team is selected
+		if( TeamType == ETeamType::None || TeamType == ETeamType::MAX )
+		{
+			const FString GoalName = UKismetSystemLibrary::GetDisplayName(this);
+			UE_LOG(LogTemp, Warning, TEXT("No team has been selected for the goal %s !"), *GoalName);
+		}
 	}
 }
 

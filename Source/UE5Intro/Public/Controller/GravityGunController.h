@@ -4,7 +4,6 @@
 #include "Components/ActorComponent.h"
 #include "GravityGunController.generated.h"
 
-
 UCLASS( Abstract, Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UE5INTRO_API UGravityGunController : public UActorComponent
 {

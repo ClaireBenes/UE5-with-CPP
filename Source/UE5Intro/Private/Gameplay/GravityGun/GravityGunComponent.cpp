@@ -6,6 +6,7 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
+#include "Curves/CurveFloat.h"
 
 UGravityGunComponent::UGravityGunComponent()
 {
@@ -83,12 +84,26 @@ void UGravityGunComponent::OnTakeObjectInputPressed()
 
 void UGravityGunComponent::OnThrowObjectInputPressed()
 {
+	if( !CurrentPickUp.IsValid() )
+	{
+		return;
+	}
+
 	// Add force while pressing
+
 	PickUpCurrentThrowTime += GetWorld()->GetDeltaSeconds();
 	float Alpha = FMath::Clamp(PickUpCurrentThrowTime / PickUpTimeToReachMaxForce, 0.0f, 1.0f);
 
-	PickUpThrowForce = FMath::Lerp(PickUpMinThrowForce, PickUpMaxThrowForce, Alpha);
-	PickUpThrowForce = FMath::Clamp(PickUpThrowForce, PickUpMinThrowForce, PickUpMaxThrowForce);
+	// Check if we need to use a curve or not
+	if( ThrowForceCurve )
+	{
+		PickUpThrowForce = ThrowForceCurve->GetFloatValue(Alpha);
+	}
+	else
+	{
+		PickUpThrowForce = FMath::Lerp(PickUpMinThrowForce, PickUpMaxThrowForce, Alpha);
+		PickUpThrowForce = FMath::Clamp(PickUpThrowForce, PickUpMinThrowForce, PickUpMaxThrowForce);
+	}
 }
 
 void UGravityGunComponent::OnThrowObjectInputReleased()
@@ -244,6 +259,20 @@ void UGravityGunComponent::TakePickUp(TWeakObjectPtr<AActor> PickUp)
 		default:
 			break;
 	}
+
+	// Update and broadcast pick up count
+	NumPickUpTaken++;
+	OnPickUpTaken.Broadcast(NumPickUpTaken);
+}
+
+float UGravityGunComponent::GetTimeToReachMaxThrowForce() const
+{
+	return PickUpTimeToReachMaxForce;
+}
+
+float UGravityGunComponent::GetCurrentTimeToReachMaxThrowForce() const
+{
+	return PickUpCurrentThrowTime;
 }
 
 

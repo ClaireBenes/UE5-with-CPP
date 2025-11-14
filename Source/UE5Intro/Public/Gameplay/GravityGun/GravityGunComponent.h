@@ -4,6 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "GravityGunComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPickUpTakenDelegate, int, NumPickUpTaken);
 
 UCLASS(Abstract, Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UE5INTRO_API UGravityGunComponent : public UActorComponent
@@ -22,6 +23,20 @@ public:
 protected:
 	TWeakObjectPtr<class AMainCharacter> Character = nullptr;
 	TWeakObjectPtr<class APlayerCameraManager> CharacterCameraManager = nullptr;
+
+// Curve
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun|Curve")
+	TObjectPtr<class UCurveFloat> ThrowForceCurve = nullptr;
+// End of Curve
+
+// BP Event
+protected:
+	// Create an event that can be used in BP
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Gravity Gun")
+	FOnPickUpTakenDelegate OnPickUpTaken;
+	int NumPickUpTaken = 0;
+// End of BP Event
 
 //Inputs
 public:
@@ -59,6 +74,12 @@ protected:
 public:
 	TWeakObjectPtr<AActor> GetCurrentPickUp();
 	void TakePickUp(TWeakObjectPtr<AActor> PickUp);
+
+	UFUNCTION(BlueprintPure, Category = "Gravity Gun")
+	float GetTimeToReachMaxThrowForce() const;
+	UFUNCTION(BlueprintPure, Category = "Gravity Gun")
+	float GetCurrentTimeToReachMaxThrowForce() const;
+
 protected:
 	TWeakObjectPtr<AActor> CurrentPickUp = nullptr;
 	TWeakObjectPtr<class UPickUpComponent> CurrentPickUpComponent = nullptr;
