@@ -8,8 +8,8 @@ UENUM()
 enum class ETeamType : uint8
 {
 	None UMETA(Hidden),
-	TheBest,
-	Whatever,
+	Blue,
+	Red,
 	MAX UMETA(Hidden),
 };
 

@@ -18,6 +18,7 @@ protected:
 	TWeakObjectPtr<class AMainCharacter> Character = nullptr;
 	TWeakObjectPtr<class UGravityGunController> GravityGunController = nullptr;
 	TWeakObjectPtr<class UScoreComponent> ScoreComponent = nullptr;
+	TWeakObjectPtr<class UPickUpSpawnerController> PickUpSpawnerController = nullptr;
 	
 // Inputs
 protected:

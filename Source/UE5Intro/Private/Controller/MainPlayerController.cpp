@@ -11,6 +11,7 @@
 #include "Gameplay/MainCharacter.h"
 #include "Controller/GravityGunController.h"
 #include "Gameplay/ScoreComponent.h"
+#include "Controller/PickUpSpawnerController.h"
 
 
 void AMainPlayerController::SetupInputComponent()
@@ -72,6 +73,12 @@ void AMainPlayerController::SetPawn(APawn* InPawn)
 		if( GravityGunController.IsValid() )
 		{
 			GravityGunController->SetupInputComponentGravityGun(InputComponent, InPawn);
+		}
+
+		PickUpSpawnerController = FindComponentByClass<UPickUpSpawnerController>();
+		if( PickUpSpawnerController.IsValid() )
+		{
+			PickUpSpawnerController->SetupInputComponentPickUpSpawner(InputComponent, InPawn);
 		}
 	}
 }
