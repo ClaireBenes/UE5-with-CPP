@@ -49,6 +49,10 @@ void UPickUpSpawnerController::SetupInputComponentPickUpSpawner(TObjectPtr<class
 	{
 		EnhancedInputComponent->BindAction(InputActionShowAmountOfPickUps, ETriggerEvent::Triggered, this, &UPickUpSpawnerController::ShowAmountOfPickUp);
 	}
+	if( InputActionDestroyPickUpInHand )
+	{
+		EnhancedInputComponent->BindAction(InputActionDestroyPickUpInHand, ETriggerEvent::Triggered, this, &UPickUpSpawnerController::DestroyPickUpInHand);
+	}
 }
 
 void UPickUpSpawnerController::ShowAmountOfPickUp()
@@ -56,6 +60,14 @@ void UPickUpSpawnerController::ShowAmountOfPickUp()
 	if( PickUpSpawnerComponent.IsValid() )
 	{
 		PickUpSpawnerComponent->ShowAllPickUps();
+	}
+}
+
+void UPickUpSpawnerController::DestroyPickUpInHand()
+{
+	if( PickUpSpawnerComponent.IsValid() )
+	{
+		PickUpSpawnerComponent->DestroyPickUpInHands();
 	}
 }
 

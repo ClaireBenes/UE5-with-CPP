@@ -26,6 +26,7 @@ protected:
 public:
 	void OnSpawnPickUp(EPickUpType PickUpType);
 	void ShowAllPickUps();
+	void DestroyPickUpInHands();
 // End of Inputs
 
 // Spawn

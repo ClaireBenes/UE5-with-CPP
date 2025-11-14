@@ -245,7 +245,6 @@ void UPickUpSpawnerComponent::DestroyPickUpInHands()
 	// Check Current Pick Up of Gun Component validity
 	if( GravityGunComponent->GetCurrentPickUp().IsValid() )
 	{
-		// Get Pick Up (and its Component) of Gun Component
 		TWeakObjectPtr< UPickUpComponent> PickUpComponent = GravityGunComponent->GetCurrentPickUp()->GetComponentByClass< UPickUpComponent>();
 		if( PickUpComponent.IsValid() )
 		{

@@ -27,11 +27,14 @@ protected:
 	TObjectPtr<class UInputAction> InputActionSpawnPickUpDestroyAfterThrow = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
 	TObjectPtr<class UInputAction> InputActionShowAmountOfPickUps = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
+	TObjectPtr<class UInputAction> InputActionDestroyPickUpInHand = nullptr;
 
 protected:
 	void SpawnPickUpNormal();
 	void SpawnPickUpDestroyAfterPickUp();
 	void SpawnPickUpDestroyAfterThrow();
 	void ShowAmountOfPickUp();
+	void DestroyPickUpInHand();
 // End of Inputs
 };

@@ -58,8 +58,6 @@ public:
 public:
 	void StartPickUpDestructionTimer();
 	void ClearDestructionTimer();
-
-protected:
 	void DestroyPickUp();
 // End of Destruction
 };
