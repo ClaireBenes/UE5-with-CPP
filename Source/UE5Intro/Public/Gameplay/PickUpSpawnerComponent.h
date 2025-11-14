@@ -25,12 +25,15 @@ protected:
 	TWeakObjectPtr<class UGravityGunComponent> GravityGunComponent = nullptr;
 
 // Pick Up
+protected:
 	UPROPERTY(EditAnywhere, Category = "Pick Up")
 	TSubclassOf<class AActor> PickUpNormal = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Pick Up")
 	TSubclassOf<class AActor> PickUpDestroyAfterPickUp = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Pick Up")
 	TSubclassOf<class AActor> PickUpDestroyAfterThrow = nullptr;
+
+	TWeakObjectPtr<AActor> NewPickUp;
 // End of Pick Up
 
 //Inputs

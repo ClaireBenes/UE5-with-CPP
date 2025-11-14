@@ -237,5 +237,62 @@ void UGravityGunComponent::OnAddForceMultiplier()
 	}
 }
 
+TWeakObjectPtr<AActor> UGravityGunComponent::GetCurrentPickUp()
+{
+	return CurrentPickUp;
+}
+
+void UGravityGunComponent::TakePickUp(TWeakObjectPtr<AActor> PickUp)
+{
+	// Get Pick Up
+	if( !PickUp.IsValid() )
+	{
+		return;
+	}
+
+	CurrentPickUp = PickUp;
+
+	// Get Pick Up Component
+	CurrentPickUpComponent = CurrentPickUp->FindComponentByClass<UPickUpComponent>();
+	if( !CurrentPickUpComponent.IsValid() )
+	{
+		return;
+	}
+
+	// Get Pick Up Static Mesh
+	CurrentPickUpStaticMesh = CurrentPickUp->FindComponentByClass<UStaticMeshComponent>();
+	if( !CurrentPickUpStaticMesh.IsValid() )
+	{
+		return;
+	}
+
+	// Disable its physics
+	CurrentPickUpStaticMesh->SetSimulatePhysics(false);
+
+	// Update Collision Profile
+	PreviousCollisionProfileName = CurrentPickUpStaticMesh->GetCollisionProfileName();
+	CurrentPickUpStaticMesh->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
+
+	// Check Pick Up Type
+	switch( CurrentPickUpComponent->GetPickUpType() )
+	{
+		case EPickUpType::DestroyAfterPickUp:
+			// Launch the timer
+			CurrentPickUpComponent->StartPickUpDestructionTimer();
+
+			// Bind to the destroy event
+			CurrentPickUpComponent->OnPickDestroyed.AddUniqueDynamic(this, &UGravityGunComponent::OnHoldPickUpDestroy);
+			break;
+
+		case EPickUpType::DestroyAfterThrow:
+			// Clear the timer so it doesn't disapear from our hands
+			CurrentPickUpComponent->ClearDestructionTimer();
+			break;
+
+		default:
+			break;
+	}
+}
+
 
 

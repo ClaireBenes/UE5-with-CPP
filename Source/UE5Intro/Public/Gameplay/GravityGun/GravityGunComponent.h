@@ -56,6 +56,9 @@ protected:
 // End of Debug
 
 // Pick Up
+public:
+	TWeakObjectPtr<AActor> GetCurrentPickUp();
+	void TakePickUp(TWeakObjectPtr<AActor> PickUp);
 protected:
 	TWeakObjectPtr<AActor> CurrentPickUp = nullptr;
 	TWeakObjectPtr<class UPickUpComponent> CurrentPickUpComponent = nullptr;

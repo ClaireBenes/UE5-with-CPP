@@ -40,8 +40,6 @@ void UPickUpSpawnerComponent::OnSpawnPickUp( EPickUpType PickUpType)
 	FTransform Transform;
 	FActorSpawnParameters PickUpSpawnParameters;
 
-	AActor* NewPickUp;
-
 	switch( PickUpType )
 	{
 		case EPickUpType::None:
@@ -68,6 +66,14 @@ void UPickUpSpawnerComponent::OnSpawnPickUp( EPickUpType PickUpType)
 			break;
 	}
 
-	//GetWorld()->SpawnActor(PickUpToSpawn, Location, Rotation, PickUpSpawnParameters);
+	if( !GravityGunComponent.IsValid() )
+	{
+		return;
+	}
+
+	if( !GravityGunComponent->GetCurrentPickUp().IsValid() )
+	{
+		GravityGunComponent->TakePickUp(NewPickUp);
+	}
 }
 
