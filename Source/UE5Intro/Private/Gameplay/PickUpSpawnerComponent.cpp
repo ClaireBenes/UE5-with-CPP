@@ -28,16 +28,19 @@ void UPickUpSpawnerComponent::BeginPlay()
 	// Get Gravity Gun Component
 	GravityGunComponent = Character->FindComponentByClass<UGravityGunComponent>();
 
+	// Get All Pick Ups
 	TArray<AActor*> Actors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), Actors);
 
 	for( int i = 0; i < Actors.Num(); i++ )
 	{
+		// Get Pick Up Component
 		TWeakObjectPtr< UPickUpComponent> PickUpComponent = Actors[i]->GetComponentByClass< UPickUpComponent>();
 		if( PickUpComponent.IsValid() )
 		{
 			PickUpComponent->OnPickUpTypeDestroyed.AddUniqueDynamic(this, &UPickUpSpawnerComponent::OnPickUpDestroyed);
 
+			// Switch on Pick Up Type to increase the amount of each Pick Up
 			EPickUpType PickUpType = PickUpComponent->GetPickUpType();
 			switch( PickUpType )
 			{
@@ -63,13 +66,31 @@ void UPickUpSpawnerComponent::BeginPlay()
 					break;
 			}
 
+			// Increase Overall Number of Pick Up
 			PickUps++;
 		}
 	}
 }
 
+void UPickUpSpawnerComponent::StartPickUpSpawnTimer()
+{
+	// Prepare and start timer
+	FTimerManager& TimerManager = GetWorld()->GetTimerManager();
+	TimerManager.ClearTimer(PickUpSpawnTimerHandle);
+
+	TimerManager.SetTimer(PickUpSpawnTimerHandle, this, &UPickUpSpawnerComponent::ClearPickUpSpawnTimer, TimeToSpawn, false);
+}
+
+void UPickUpSpawnerComponent::ClearPickUpSpawnTimer()
+{
+	// Clear timer
+	FTimerManager& TimerManager = GetWorld()->GetTimerManager();
+	TimerManager.ClearTimer(PickUpSpawnTimerHandle);
+}
+
 void UPickUpSpawnerComponent::OnPickUpDestroyed(EPickUpType PickUpType)
 {
+	// Switch on Pick Up Type to decrease the amount of each Pick Up
 	switch( PickUpType )
 	{
 		case EPickUpType::None:
@@ -94,20 +115,32 @@ void UPickUpSpawnerComponent::OnPickUpDestroyed(EPickUpType PickUpType)
 			break;
 	}
 
+	// Decrease Overall Number of Pick Up
 	PickUps--;
 	UE_LOG(LogTemp, Log, TEXT("Now, %d Pick Ups on the map"), PickUps);
 }
 
 void UPickUpSpawnerComponent::OnSpawnPickUp( EPickUpType PickUpType)
 {
+	// Check PickUp
 	if( !PickUpNormal || !PickUpDestroyAfterPickUp || !PickUpDestroyAfterThrow )
 	{
 		return;
 	}
 
+	// Check amount of Pick Ups
 	if( PickUps >= MaxPickUps )
 	{
 		UE_LOG(LogTemp, Log, TEXT("Max Amount of Pick Ups on the map"));
+		return;
+	}
+
+	// Check Spawn Timer is available
+	FTimerManager& TimerManager = GetWorld()->GetTimerManager();
+	if( TimerManager.IsTimerActive(PickUpSpawnTimerHandle) )
+	{
+		float TimeRemaining = TimerManager.GetTimerRemaining(PickUpSpawnTimerHandle);
+		UE_LOG(LogTemp, Log, TEXT("Wait %f seconds to be able to spawn again"), TimeRemaining);
 		return;
 	}
 
@@ -117,6 +150,7 @@ void UPickUpSpawnerComponent::OnSpawnPickUp( EPickUpType PickUpType)
 	FTransform Transform;
 	FActorSpawnParameters PickUpSpawnParameters;
 
+	// Switch on Pick Up type to spawn correct Actor
 	switch( PickUpType )
 	{
 		case EPickUpType::None:
@@ -164,17 +198,29 @@ void UPickUpSpawnerComponent::OnSpawnPickUp( EPickUpType PickUpType)
 			break;
 	}
 
-	TWeakObjectPtr< UPickUpComponent> PickUpComponent = NewPickUp->GetComponentByClass< UPickUpComponent>();
-	PickUpComponent->OnPickUpTypeDestroyed.AddUniqueDynamic(this, &UPickUpSpawnerComponent::OnPickUpDestroyed);
+	// Increase Overall Pick Up Amounts
 	PickUps++;
+	StartPickUpSpawnTimer();
+	UE_LOG(LogTemp, Log, TEXT("Spawning new Pick Up"));
 
+	// Get Pick Up Component
+	TWeakObjectPtr< UPickUpComponent> PickUpComponent = NewPickUp->GetComponentByClass< UPickUpComponent>();
+	if( PickUpComponent.IsValid() )
+	{
+		// Bind to destroy event
+		PickUpComponent->OnPickUpTypeDestroyed.AddUniqueDynamic(this, &UPickUpSpawnerComponent::OnPickUpDestroyed);
+	}
+
+	// Check Gravity Gun Component
 	if( !GravityGunComponent.IsValid() )
 	{
 		return;
 	}
 
+	// Check Current Pick Up of Gun Component validity
 	if( !GravityGunComponent->GetCurrentPickUp().IsValid() )
 	{
+		// Place Pick Up in Player Hands
 		GravityGunComponent->TakePickUp(NewPickUp);
 	}
 }

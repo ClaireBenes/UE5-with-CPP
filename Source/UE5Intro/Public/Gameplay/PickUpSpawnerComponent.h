@@ -6,8 +6,6 @@
 #include "Components/ActorComponent.h"
 #include "PickUpSpawnerComponent.generated.h"
 
-class UPickUpComponent;
-
 
 UCLASS(Abstract, Blueprintable, ClassGroup = ( Custom ), meta = ( BlueprintSpawnableComponent ))
 class UE5INTRO_API UPickUpSpawnerComponent : public UActorComponent
@@ -24,6 +22,23 @@ protected:
 	TWeakObjectPtr<class AMainCharacter> Character = nullptr;
 	TWeakObjectPtr<class UGravityGunComponent> GravityGunComponent = nullptr;
 
+// Inputs
+public:
+	void OnSpawnPickUp(EPickUpType PickUpType);
+	void ShowAllPickUps();
+// End of Inputs
+
+// Spawn
+public:
+	void StartPickUpSpawnTimer();
+	void ClearPickUpSpawnTimer();
+
+protected:
+	FTimerHandle PickUpSpawnTimerHandle;
+	UPROPERTY(EditAnywhere, Category = "Pick Up|Spawn")
+	float TimeToSpawn = 1.2f;
+// End of Spawn
+
 // Pick Up
 protected:
 	UFUNCTION()
@@ -39,13 +54,13 @@ protected:
 
 	TWeakObjectPtr<AActor> NewPickUp;
 
-	UPROPERTY(EditAnywhere, Category = "Pick Up", meta = ( ClampMin = "1", ClampMax = "20" ))
+	UPROPERTY(EditAnywhere, Category = "Pick Up|Amount", meta = ( ClampMin = "1", ClampMax = "20" ))
 	unsigned int MaxPickUps = 12;
-	UPROPERTY(EditAnywhere, Category = "Pick Up", meta = ( ClampMin = "1", ClampMax = "20" ))
+	UPROPERTY(EditAnywhere, Category = "Pick Up|Amount", meta = ( ClampMin = "1", ClampMax = "20" ))
 	unsigned int MaxNormalPickUp = 5;
-	UPROPERTY(EditAnywhere, Category = "Pick Up", meta = ( ClampMin = "1", ClampMax = "20" ))
+	UPROPERTY(EditAnywhere, Category = "Pick Up|Amount", meta = ( ClampMin = "1", ClampMax = "20" ))
 	unsigned int MaxDestroyAfterPickUp = 4;
-	UPROPERTY(EditAnywhere, Category = "Pick Up", meta = ( ClampMin = "1", ClampMax = "20" ))
+	UPROPERTY(EditAnywhere, Category = "Pick Up|Amount", meta = ( ClampMin = "1", ClampMax = "20" ))
 	unsigned int MaxDestroyAfterThrowsPickUps = 5;
 
 	unsigned int PickUps = 0;
@@ -53,11 +68,4 @@ protected:
 	unsigned int DestroyAfterPickUps = 0;
 	unsigned int DestroyAfterThrowsPickUps = 0;
 // End of Pick Up
-
-//Inputs
-public:
-	UFUNCTION()
-	void OnSpawnPickUp(EPickUpType PickUpType);
-	void ShowAllPickUps();
-// end of Inputs
 };

@@ -71,62 +71,14 @@ void UGravityGunComponent::OnTakeObjectInputPressed()
 	const bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, RaycastStart, RaycastEnd, GravityGunCollisionChannel, Params);
 	if( !bHit )
 	{
-		//UE_LOG(LogTemp, Log, TEXT("We hit nothing !"));
 		return;
 	}
 
 	const FString HitActorName = UKismetSystemLibrary::GetDisplayName(HitResult.GetActor());
-	//UE_LOG(LogTemp, Log, TEXT("We hit %s!"), *HitActorName);
 
 	// Get Pick Up
 	CurrentPickUp = HitResult.GetActor();
-	if( !CurrentPickUp.IsValid() )
-	{
-		return;
-	}
-
-	// Get Pick Up Component
-	CurrentPickUpComponent = CurrentPickUp->FindComponentByClass<UPickUpComponent>();
-	if( !CurrentPickUpComponent.IsValid() )
-	{
-		UE_LOG(LogTemp, Warning, TEXT("We hit %s and it doesn't have a Pick Up Component!"), *HitActorName);
-		return;
-	}
-
-	// Get Pick Up Static Mesh
-	CurrentPickUpStaticMesh = CurrentPickUp->FindComponentByClass<UStaticMeshComponent>();
-	if( !CurrentPickUpStaticMesh.IsValid() )
-	{
-		UE_LOG(LogTemp, Warning, TEXT("We hit %s and it doesn't have a Static Mesh!"), *HitActorName);
-		return;
-	}
-
-	// Disable its physics
-	CurrentPickUpStaticMesh->SetSimulatePhysics(false);
-
-	// Update Collision Profile
-	PreviousCollisionProfileName = CurrentPickUpStaticMesh->GetCollisionProfileName();
-	CurrentPickUpStaticMesh->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
-
-	// Check Pick Up Type
-	switch( CurrentPickUpComponent->GetPickUpType() )
-	{
-		case EPickUpType::DestroyAfterPickUp:
-			// Launch the timer
-			CurrentPickUpComponent->StartPickUpDestructionTimer();
-
-			// Bind to the destroy event
-			CurrentPickUpComponent->OnPickDestroyed.AddUniqueDynamic(this, &UGravityGunComponent::OnHoldPickUpDestroy);
-			break;
-
-		case EPickUpType::DestroyAfterThrow:
-			// Clear the timer so it doesn't disapear from our hands
-			CurrentPickUpComponent->ClearDestructionTimer();
-			break;
-
-		default:
-			break;
-	}
+	TakePickUp(CurrentPickUp);
 }
 
 void UGravityGunComponent::OnThrowObjectInputPressed()
