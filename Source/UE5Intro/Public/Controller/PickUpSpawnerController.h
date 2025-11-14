@@ -25,10 +25,13 @@ protected:
 	TObjectPtr<class UInputAction> InputActionSpawnPickUpDestroyAfterPickUp = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
 	TObjectPtr<class UInputAction> InputActionSpawnPickUpDestroyAfterThrow = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
+	TObjectPtr<class UInputAction> InputActionShowAmountOfPickUps = nullptr;
 
 protected:
-	void SpawnPickUpNormal(const struct FInputActionValue& Value);
-	void SpawnPickUpDestroyAfterPickUp(const struct FInputActionValue& Value);
-	void SpawnPickUpDestroyAfterThrow(const struct FInputActionValue& Value);
+	void SpawnPickUpNormal();
+	void SpawnPickUpDestroyAfterPickUp();
+	void SpawnPickUpDestroyAfterThrow();
+	void ShowAmountOfPickUp();
 // End of Inputs
 };

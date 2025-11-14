@@ -46,6 +46,7 @@ void UPickUpComponent::DestroyPickUp()
 
 	// Broadcast event
 	OnPickDestroyed.Broadcast();
+	OnPickUpTypeDestroyed.Broadcast(PickUpStruct.PickUpType);
 
 	// Destroy the pick up
 	// I'm destroying my parent. The components will be destroyed first, then the actor itself will be destroy

@@ -45,9 +45,21 @@ void UPickUpSpawnerController::SetupInputComponentPickUpSpawner(TObjectPtr<class
 	{
 		EnhancedInputComponent->BindAction(InputActionSpawnPickUpDestroyAfterThrow, ETriggerEvent::Triggered, this, &UPickUpSpawnerController::SpawnPickUpDestroyAfterThrow);
 	}
+	if( InputActionShowAmountOfPickUps )
+	{
+		EnhancedInputComponent->BindAction(InputActionShowAmountOfPickUps, ETriggerEvent::Triggered, this, &UPickUpSpawnerController::ShowAmountOfPickUp);
+	}
 }
 
-void UPickUpSpawnerController::SpawnPickUpNormal(const FInputActionValue& Value)
+void UPickUpSpawnerController::ShowAmountOfPickUp()
+{
+	if( PickUpSpawnerComponent.IsValid() )
+	{
+		PickUpSpawnerComponent->ShowAllPickUps();
+	}
+}
+
+void UPickUpSpawnerController::SpawnPickUpNormal()
 {
 	if( PickUpSpawnerComponent.IsValid() )
 	{
@@ -55,7 +67,7 @@ void UPickUpSpawnerController::SpawnPickUpNormal(const FInputActionValue& Value)
 	}
 }
 
-void UPickUpSpawnerController::SpawnPickUpDestroyAfterPickUp(const FInputActionValue& Value)
+void UPickUpSpawnerController::SpawnPickUpDestroyAfterPickUp()
 {
 	if( PickUpSpawnerComponent.IsValid() )
 	{
@@ -63,7 +75,7 @@ void UPickUpSpawnerController::SpawnPickUpDestroyAfterPickUp(const FInputActionV
 	}
 }
 
-void UPickUpSpawnerController::SpawnPickUpDestroyAfterThrow(const FInputActionValue& Value)
+void UPickUpSpawnerController::SpawnPickUpDestroyAfterThrow()
 {
 	if( PickUpSpawnerComponent.IsValid() )
 	{

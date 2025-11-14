@@ -30,6 +30,8 @@ struct FPickUpStruct
 	float DestructionTime = 3.0f;
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPickUpTypeDestroyDelegate, EPickUpType, CurrentPickUpType);
+
 UCLASS(ClassGroup = ( "Pick Up" ), meta = ( BlueprintSpawnableComponent ))
 class UE5INTRO_API UPickUpComponent : public UActorComponent
 {
@@ -51,6 +53,7 @@ protected:
 
 public:
 	FOnPickUpDestroyDelegate OnPickDestroyed;
+	FOnPickUpTypeDestroyDelegate OnPickUpTypeDestroyed;
 
 public:
 	void StartPickUpDestructionTimer();

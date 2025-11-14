@@ -107,7 +107,7 @@ void UPickUpSpawnerComponent::OnSpawnPickUp( EPickUpType PickUpType)
 
 	if( PickUps >= MaxPickUps )
 	{
-		UE_LOG(LogTemp, Log, TEXT("Max Amount of Pick Ups on the map"));
+		UE_LOG(LogTemp, Log, TEXT("Max Amount of Pick ups on the map"));
 		return;
 	}
 
@@ -126,7 +126,6 @@ void UPickUpSpawnerComponent::OnSpawnPickUp( EPickUpType PickUpType)
 		case EPickUpType::Normal:
 			if( NormalPickUps >= MaxNormalPickUp )
 			{
-				UE_LOG(LogTemp, Log, TEXT("Max Amount of Normal Pick Ups on the map"));
 				return;
 			}
 
@@ -137,7 +136,6 @@ void UPickUpSpawnerComponent::OnSpawnPickUp( EPickUpType PickUpType)
 		case EPickUpType::DestroyAfterPickUp:
 			if( DestroyAfterPickUps >= MaxDestroyAfterPickUp )
 			{
-				UE_LOG(LogTemp, Log, TEXT("Max Amount of DestroyAfterPickUp Pick Ups on the map"));
 				return;
 			}
 
@@ -148,7 +146,6 @@ void UPickUpSpawnerComponent::OnSpawnPickUp( EPickUpType PickUpType)
 		case EPickUpType::DestroyAfterThrow:
 			if( DestroyAfterThrowsPickUps >= MaxDestroyAfterThrowsPickUps )
 			{
-				UE_LOG(LogTemp, Log, TEXT("Max Amount of DestroyAfterThrow Pick Ups on the map"));
 				return;
 			}
 
@@ -182,9 +179,9 @@ void UPickUpSpawnerComponent::OnSpawnPickUp( EPickUpType PickUpType)
 void UPickUpSpawnerComponent::ShowAllPickUps()
 {
 	UE_LOG(LogTemp, Log, TEXT("=== Current Pick Ups ==="));
-	UE_LOG(LogTemp, Log, TEXT("Amount of Normal Pick Up : %d"), NormalPickUps);
+	UE_LOG(LogTemp, Log, TEXT("Amount of normal Pick Up : %d"), NormalPickUps);
 	UE_LOG(LogTemp, Log, TEXT("Amount of DestroyAfterPickUps Pick Up : %d"), DestroyAfterPickUps);
 	UE_LOG(LogTemp, Log, TEXT("Amount of DestroyAfterThrows Pick Up : %d"), DestroyAfterThrowsPickUps);
-	UE_LOG(LogTemp, Log, TEXT("Amount of Overall Pick Up : %d"), PickUps);
+	UE_LOG(LogTemp, Log, TEXT("Amount of overall Pick Up : %d"), PickUps);
 }
 
