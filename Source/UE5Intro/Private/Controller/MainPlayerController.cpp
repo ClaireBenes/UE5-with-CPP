@@ -7,11 +7,19 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 
-//Gameplay
+// Gameplay
 #include "Gameplay/MainCharacter.h"
 #include "Controller/GravityGunController.h"
 #include "Gameplay/ScoreComponent.h"
 #include "Controller/PickUpSpawnerController.h"
+
+// UI
+#include "UI/Menu/BaseMenuCommonUserWidget.h"
+#include "UI/MenuNavigationDataAsset.h"
+#include "CommonActivatableWidget.h"
+
+// Settings
+#include "Settings/UIParametersSubsystem.h"
 
 
 void AMainPlayerController::SetupInputComponent()
@@ -56,6 +64,10 @@ void AMainPlayerController::SetupInputComponent()
 	{
 		EnhancedInputComponent->BindAction(InputActionPickUpInGoal, ETriggerEvent::Triggered, this, &AMainPlayerController::PickUpInGoal);
 	}
+	if( InputActionPause )
+	{
+		EnhancedInputComponent->BindAction(InputActionPause, ETriggerEvent::Triggered, this, &AMainPlayerController::OnPauseInputPressed);
+	}
 }
 
 void AMainPlayerController::SetPawn(APawn* InPawn)
@@ -80,6 +92,19 @@ void AMainPlayerController::SetPawn(APawn* InPawn)
 		{
 			PickUpSpawnerController->SetupInputComponentPickUpSpawner(InputComponent, InPawn);
 		}
+	}
+}
+
+void AMainPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// Load Data Asset
+	UUIParametersSubsystem* UIParametersSubsystem = GEngine->GetEngineSubsystem<UUIParametersSubsystem>();
+
+	if( UIParametersSubsystem )
+	{
+		MenuNavigationInfoDataAsset = UIParametersSubsystem->GetMenuNavigationInfo();
 	}
 }
 
@@ -163,5 +188,40 @@ void AMainPlayerController::PickUpInGoal()
 	if( ScoreComponent.IsValid() )
 	{
 		ScoreComponent->CountPickUpInGoal();
+	}
+}
+
+void AMainPlayerController::OnPauseInputPressed()
+{
+	// Check Data Asset and Names
+	if( !MenuNavigationInfoDataAsset.IsValid() || PauseMenuActivatableWidgetName.IsEmpty() || PauseMenuBackgroundWidgetName.IsEmpty() )
+	{
+		return;
+	}
+
+	// Get the right widget template for background
+	TSubclassOf<UUserWidget> MenuWidgetTemplate = *MenuNavigationInfoDataAsset->MenuNavigationMap.Find(PauseMenuBackgroundWidgetName);
+	if( !MenuWidgetTemplate )
+	{
+		return;
+	}
+
+	// Spawn Background widget and display it
+	UBaseMenuCommonUserWidget* MenuWidget = CreateWidget<UBaseMenuCommonUserWidget>(this, MenuWidgetTemplate);
+
+	if( MenuWidget )
+	{
+		MenuWidget->AddToViewport(0);
+
+		// Look for the template of the Activatable Widget
+		TSubclassOf<UCommonActivatableWidget> MenuActivatableWidgetTemplate = 
+			*MenuNavigationInfoDataAsset->MenuNavigationActivatableWidgetMap.Find(PauseMenuActivatableWidgetName);
+
+		if( MenuActivatableWidgetTemplate )
+		{
+			// Give it to the Background Widget so it can spawn it
+			MenuWidget->AddWidgetOnStack(MenuActivatableWidgetTemplate);
+		}
+
 	}
 }

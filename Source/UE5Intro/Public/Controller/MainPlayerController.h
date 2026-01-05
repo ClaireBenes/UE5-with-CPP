@@ -15,6 +15,9 @@ public:
 	virtual void SetPawn(class APawn* InPawn) override;
 
 protected:
+	virtual void BeginPlay() override;
+
+protected:
 	TWeakObjectPtr<class AMainCharacter> Character = nullptr;
 	TWeakObjectPtr<class UGravityGunController> GravityGunController = nullptr;
 	TWeakObjectPtr<class UScoreComponent> ScoreComponent = nullptr;
@@ -67,5 +70,22 @@ protected:
 protected:
 	void PickUpInGoal();
 // Enf of Pick Up In Goal
+
+
+// Pause Menu
+protected:
+	void OnPauseInputPressed();
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
+	TObjectPtr<class UInputAction> InputActionPause = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Pause")
+	FString PauseMenuBackgroundWidgetName = FString();
+	UPROPERTY(EditAnywhere, Category = "Pause")
+	FString PauseMenuActivatableWidgetName = FString();
+
+	TWeakObjectPtr<class UMenuNavigationDataAsset> MenuNavigationInfoDataAsset = nullptr;
+// End of Pause Menu
 	
 };
