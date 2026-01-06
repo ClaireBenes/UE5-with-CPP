@@ -23,6 +23,10 @@ void UOptionMenuCAW::NativeConstruct()
 	{
 		BIND_ExitMenu_Button->OnButtonClicked.AddUniqueDynamic(this, &UOptionMenuCAW::CloseMenu);
 	}
+	if( BIND_KeyMappings_Button )
+	{
+		BIND_KeyMappings_Button->OnButtonClicked.AddUniqueDynamic(this, &UOptionMenuCAW::OnKeyMappingsButtonClicked);
+	}
 
 	// Bind Sliders
 	if( BIND_MouseSensitivityX_Slider )
@@ -51,9 +55,14 @@ void UOptionMenuCAW::NativeConstruct()
 			DisplaySensitivityY(SensitivityY);
 		}
 	}
+}
 
-	// Display Mappable Keys
-	DisplayKeys();
+void UOptionMenuCAW::OnKeyMappingsButtonClicked()
+{
+	if( BIND_KeyMappings_Button )
+	{
+		AddWidgetFromSubsystem(BIND_KeyMappings_Button->GetName());
+	}
 }
 
 void UOptionMenuCAW::ReceiveXSliderValue(float NewValue)
@@ -101,61 +110,4 @@ FText UOptionMenuCAW::ConvertSensitivityToDisplayText(float InSensitivity)
 	FString SensitivityText = FString::SanitizeFloat(SensitivityToDisplay, 2);
 	FText FinalText = FText::FromString(SensitivityText);
 	return FinalText;
-}
-
-void UOptionMenuCAW::DisplayKeys()
-{
-	// Check pointer and Widget Name
-	if( !BIND_KeyMappings_VB || KeyMappingWidgetName.IsEmpty() || !PlayerController.IsValid() )
-	{
-		return;
-	}
-
-	// Make sure that there is nothing insode the VB
-	if( BIND_KeyMappings_VB->GetChildrenCount() != 0 )
-	{
-		return;
-	}
-
-	// Get Enhanced Subsystem
-	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
-	if( !InputSubsystem )
-	{
-		return;
-	}
-
-	// Get Widget Template
-	TSubclassOf<UCommonActivatableWidget> KeybindingWidgetTemplate = *MenuNavigationInfoDataAsset->MenuNavigationActivatableWidgetMap.Find(KeyMappingWidgetName);
-	if( !KeybindingWidgetTemplate )
-	{
-		return;
-	}
-
-	// Get all Mappable Keys
-	TArray<FEnhancedActionKeyMapping> MappableKeys = InputSubsystem->GetAllPlayerMappableActionKeyMappings();
-	if( MappableKeys.IsEmpty() )
-	{
-		return;
-	}
-
-	// For all mappable Keys, let's create a KeyMappingCAW
-	for( FEnhancedActionKeyMapping& Key : MappableKeys )
-	{
-		// Get Name and Display Name
-		FName KeyName = Key.GetMappingName();
-		FText KeyDisplayName = Key.GetDisplayName();
-
-		// Create KeyMappingCAW
-		UKeyMappingCAW* NewKeyWidget = CreateWidget<UKeyMappingCAW>(this, KeybindingWidgetTemplate);
-		if( NewKeyWidget )
-		{
-			// Set all Key infos
-			NewKeyWidget->SetInputName(KeyName);
-			NewKeyWidget->SetInputDisplayName(KeyDisplayName);
-			NewKeyWidget->SetInputSelector(Key);
-
-			// Add the widget in the Vertical Box
-			BIND_KeyMappings_VB->AddChild(NewKeyWidget);
-		}
-	}
 }

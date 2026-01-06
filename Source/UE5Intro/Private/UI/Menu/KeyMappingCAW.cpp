@@ -1,5 +1,6 @@
 // UI
 #include "UI/Menu/KeyMappingCAW.h"
+#include "UI/MainCommonButtonBase.h"
 #include "Components/InputKeySelector.h"
 #include "Components/TextBlock.h"
 #include "Framework/Commands/InputChord.h"
@@ -16,6 +17,22 @@ void UKeyMappingCAW::NativeConstruct()
 	if( BIND_InputSelector )
 	{
 		BIND_InputSelector->OnKeySelected.AddUniqueDynamic(this, &UKeyMappingCAW::OnKeySelected);
+	}
+
+	// Bind Button
+	if( BIND_Reset_Button )
+	{
+		BIND_Reset_Button->OnButtonClicked.AddUniqueDynamic(this, &UKeyMappingCAW::OnResetButtonClicked);
+	}
+}
+
+void UKeyMappingCAW::OnResetButtonClicked()
+{
+	// Send Key to reset to the Player Controller
+	AMainPlayerController* PlayerController = Cast<AMainPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	if( PlayerController )
+	{
+		PlayerController->OnResetMappableKey(InputName, DisplayKey, this);
 	}
 }
 

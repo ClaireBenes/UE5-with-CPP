@@ -104,7 +104,7 @@ public:
 // Key Mappings
 public:
 	void OnUpdateMappableKey(FName MappingName, FKey NewKey);
-
+	void OnResetMappableKey(FName MappingName, struct FEnhancedActionKeyMapping& DisplayKey, class UKeyMappingCAW* KeyMappingWidget);
 // End of Key Mappings
 	
 };

@@ -14,6 +14,16 @@ class UE5INTRO_API UKeyMappingCAW : public UCommonActivatableWidget
 protected:
 	virtual void NativeConstruct() override;
 
+// Button
+protected:
+	UFUNCTION()
+	void OnResetButtonClicked();
+
+protected:
+	UPROPERTY(meta = ( BindWidgetOptional ))
+	TObjectPtr<class UMainCommonButtonBase> BIND_Reset_Button = nullptr;
+// End of Button
+
 // Keybindings
 public:
 	void SetInputName(FName InName);

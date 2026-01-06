@@ -21,6 +21,7 @@
 
 // Settings
 #include "Settings/UIParametersSubsystem.h"
+#include "GameFramework/GameUserSettings.h"
 
 
 void AMainPlayerController::SetupInputComponent()
@@ -281,4 +282,17 @@ void AMainPlayerController::OnUpdateMappableKey(FName MappingName, FKey NewKey)
 
 	// Update the Key
 	InputUserSettings->MapPlayerKey(Args, FailureReason);
+
+	// Save Data
+	UGameUserSettings* GameUserSettings = UGameUserSettings::GetGameUserSettings();
+	if( GameUserSettings )
+	{
+		GameUserSettings->ApplySettings(true);
+		InputUserSettings->ApplySettings();
+		InputUserSettings->SaveSettings();
+	}
+}
+
+void AMainPlayerController::OnResetMappableKey(FName MappingName, FEnhancedActionKeyMapping& DisplayKey, UKeyMappingCAW* KeyMappingWidget)
+{
 }

@@ -16,8 +16,14 @@ protected:
 
 // Button
 protected:
+	UFUNCTION()
+	void OnKeyMappingsButtonClicked();
+
+protected:
 	UPROPERTY(meta = ( BindWidgetOptional ))
 	TObjectPtr<class UMainCommonButtonBase> BIND_ExitMenu_Button = nullptr;
+	UPROPERTY(meta = ( BindWidgetOptional ))
+	TObjectPtr<class UMainCommonButtonBase> BIND_KeyMappings_Button = nullptr;
 // End of Button
 
 //Mouse Sensitivity
@@ -42,17 +48,5 @@ protected:
 	TObjectPtr<class UTextBlock> BIND_MouseSensitivityX_Text = nullptr;
 	UPROPERTY(meta = ( BindWidgetOptional ))
 	TObjectPtr<class UTextBlock> BIND_MouseSensitivityY_Text = nullptr;
-//End of Mouse Sensitivity
-
-// Key Mappings
-protected:
-	void DisplayKeys();
-
-protected:
-	UPROPERTY(meta = ( BindWidgetOptional ))
-	TObjectPtr<class UVerticalBox> BIND_KeyMappings_VB = nullptr;
-	UPROPERTY(EditAnywhere, Category = "Option User Widget")
-	FString KeyMappingWidgetName = FString();
-// End of Key Mappings
-	
+//End of Mouse Sensitivity	
 };
