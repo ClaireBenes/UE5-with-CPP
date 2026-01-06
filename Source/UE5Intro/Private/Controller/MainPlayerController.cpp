@@ -6,6 +6,7 @@
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "UserSettings/EnhancedInputUserSettings.h"
 
 // Gameplay
 #include "Gameplay/MainCharacter.h"
@@ -27,8 +28,8 @@ void AMainPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 
 	// Get Enhanced Subsystem
-	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
-	if( !InputSubsystem )
+	InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+	if( !InputSubsystem.IsValid() )
 	{
 		return;
 	}
@@ -105,6 +106,18 @@ void AMainPlayerController::BeginPlay()
 	if( UIParametersSubsystem )
 	{
 		MenuNavigationInfoDataAsset = UIParametersSubsystem->GetMenuNavigationInfo();
+	}
+
+	// Get Enhanced Input User Settings
+	if( InputSubsystem.IsValid() )
+	{
+		InputUserSettings = InputSubsystem->GetUserSettings();
+
+		// We need to register our IMC to the User Settings of Unreal to be able to rebind our Keys
+		if( InputUserSettings.IsValid() )
+		{
+			InputUserSettings->RegisterInputMappingContext(InputMappingContext);
+		}
 	}
 }
 

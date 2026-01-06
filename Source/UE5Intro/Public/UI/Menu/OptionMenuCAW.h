@@ -39,9 +39,15 @@ protected:
 	TObjectPtr<class USlider> BIND_MouseSensitivityY_Slider = nullptr;
 
 	UPROPERTY(meta = ( BindWidgetOptional ))
-	TObjectPtr<class UTextBlock> BIND_MouseSensitivityX_Text = nullptr;;
+	TObjectPtr<class UTextBlock> BIND_MouseSensitivityX_Text = nullptr;
 	UPROPERTY(meta = ( BindWidgetOptional ))
-	TObjectPtr<class UTextBlock> BIND_MouseSensitivityY_Text = nullptr;;
+	TObjectPtr<class UTextBlock> BIND_MouseSensitivityY_Text = nullptr;
 //End of Mouse Sensitivity
+
+// Key Mappings
+protected:
+	UPROPERTY(meta = ( BindWidgetOptional ))
+	TObjectPtr<class UVerticalBox> BIND_KeyMappings_VB = nullptr;
+// End of Key Mappings
 	
 };

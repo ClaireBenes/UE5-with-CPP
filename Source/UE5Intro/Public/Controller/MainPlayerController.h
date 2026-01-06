@@ -25,6 +25,9 @@ protected:
 	
 // Inputs
 protected:
+	TWeakObjectPtr<class UEnhancedInputLocalPlayerSubsystem> InputSubsystem = nullptr;
+	TWeakObjectPtr<class UEnhancedInputUserSettings> InputUserSettings = nullptr;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
 	TObjectPtr<class UInputMappingContext> InputMappingContext = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
