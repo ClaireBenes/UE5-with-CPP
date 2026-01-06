@@ -11,8 +11,8 @@ class UE5INTRO_API UMenuNavigationDataAsset : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, Category = "Menu Navigation")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Menu Navigation")
 	TMap<FString, TSubclassOf<class UUserWidget>> MenuNavigationMap;
-	UPROPERTY(EditAnywhere, Category = "Menu Navigation")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Menu Navigation")
 	TMap<FString, TSubclassOf<class UCommonActivatableWidget>> MenuNavigationActivatableWidgetMap;
 };

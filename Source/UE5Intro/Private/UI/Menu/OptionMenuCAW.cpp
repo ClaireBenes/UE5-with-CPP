@@ -111,6 +111,12 @@ void UOptionMenuCAW::DisplayKeys()
 		return;
 	}
 
+	// Make sure that there is nothing insode the VB
+	if( BIND_KeyMappings_VB->GetChildrenCount() != 0 )
+	{
+		return;
+	}
+
 	// Get Enhanced Subsystem
 	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
 	if( !InputSubsystem )

@@ -28,7 +28,10 @@ void UPauseMenuCAW::NativeConstruct()
 	if( BIND_Option_Button )
 	{
 		BIND_Option_Button->OnButtonClicked.AddUniqueDynamic(this, &UPauseMenuCAW::OnOptionButtonClicked);
-
+	}
+	if( BIND_MainMenu_Button )
+	{
+		BIND_MainMenu_Button->OnButtonClicked.AddUniqueDynamic(this, &UPauseMenuCAW::OnMainMenuButtonClicked);
 	}
 }
 
@@ -101,6 +104,11 @@ void UPauseMenuCAW::OnQuitButtonClicked()
 void UPauseMenuCAW::OnOptionButtonClicked()
 {
 	AddWidgetFromSubsystem(BIND_Option_Button->GetName());
+}
+
+void UPauseMenuCAW::OnMainMenuButtonClicked()
+{
+	UGameplayStatics::OpenLevel(this, MainMenudMapName);
 }
 
 

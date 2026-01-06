@@ -26,6 +26,8 @@ protected:
 	void OnQuitButtonClicked();
 	UFUNCTION()
 	void OnOptionButtonClicked();
+	UFUNCTION()
+	void OnMainMenuButtonClicked();
 
 protected:
 	UPROPERTY(meta = ( BindWidgetOptional ))
@@ -35,7 +37,11 @@ protected:
 	UPROPERTY(meta = ( BindWidgetOptional ))
 	TObjectPtr<class UMainCommonButtonBase> BIND_Quit_Button = nullptr;
 	UPROPERTY(meta = ( BindWidgetOptional ))
+	TObjectPtr<class UMainCommonButtonBase> BIND_MainMenu_Button = nullptr;
+	UPROPERTY(meta = ( BindWidgetOptional ))
 	TObjectPtr<class UMainCommonButtonBase> BIND_Option_Button = nullptr;
+	UPROPERTY(EditAnywhere, Category = "Pause Menu")
+	FName MainMenudMapName = "LVL_MainMenu";
 // End of Button
 	
 };

@@ -80,6 +80,11 @@ void AMainPlayerController::SetPawn(APawn* InPawn)
 	{
 		Character = Cast<AMainCharacter>(InPawn);
 
+		if( !Character.IsValid() )
+		{
+			return;
+		}
+
 		ScoreComponent = Character->FindComponentByClass<UScoreComponent>();
 
 		GravityGunController = FindComponentByClass<UGravityGunController>();

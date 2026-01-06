@@ -12,6 +12,7 @@ class UE5INTRO_API UMainMenuCAW : public UBaseCommonActivatableWidget
 
 protected:
 	virtual void NativeConstruct() override;
+	virtual void OpenMenu() override;
 
 // Buttons
 protected: 
@@ -30,6 +31,8 @@ protected:
 	UPROPERTY(meta = ( BindWidgetOptional ))
 	TObjectPtr<class UMainCommonButtonBase> BIND_Option_Button = nullptr;
 
+	UPROPERTY(EditAnywhere, Category = "Main Menu")
+	FName MainWorldMapName = "MainWorld";
 // End of Buttons
 	
 };

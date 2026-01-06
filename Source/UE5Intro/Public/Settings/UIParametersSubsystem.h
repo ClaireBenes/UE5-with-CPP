@@ -14,6 +14,6 @@ public:
 	class UMenuNavigationDataAsset* GetMenuNavigationInfo();
 
 protected:
-	UPROPERTY(transient)
-	TObjectPtr< class UMenuNavigationDataAsset> MenuNavigationInfo;
+	UPROPERTY(BlueprintReadOnly, transient)
+	TObjectPtr<class UMenuNavigationDataAsset> MenuNavigationInfo;
 };
