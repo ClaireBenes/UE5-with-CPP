@@ -225,3 +225,23 @@ void AMainPlayerController::OnPauseInputPressed()
 
 	}
 }
+
+float AMainPlayerController::GetMouseSensitivityX() const
+{
+	return MouseSensitivityX;
+}
+
+float AMainPlayerController::GetMouseSensitivityY() const
+{
+	return MouseSensitivityY;
+}
+
+void AMainPlayerController::SetMouseSensitivityX(float InSensitivity)
+{
+	MouseSensitivityX = InSensitivity;
+}
+
+void AMainPlayerController::SetMouseSensitivityY(float InSensitivity)
+{
+	MouseSensitivityY = InSensitivity;
+}

@@ -87,5 +87,14 @@ protected:
 
 	TWeakObjectPtr<class UMenuNavigationDataAsset> MenuNavigationInfoDataAsset = nullptr;
 // End of Pause Menu
+
+// Option Menu Mouse Sensitivity
+public:
+	float GetMouseSensitivityX() const;
+	float GetMouseSensitivityY() const;
+
+	void SetMouseSensitivityX(float InSensitivity);
+	void SetMouseSensitivityY(float InSensitivity);
+// End of Option Menu Mouse Sensitivity
 	
 };
