@@ -46,8 +46,13 @@ protected:
 
 // Key Mappings
 protected:
+	void DisplayKeys();
+
+protected:
 	UPROPERTY(meta = ( BindWidgetOptional ))
 	TObjectPtr<class UVerticalBox> BIND_KeyMappings_VB = nullptr;
+	UPROPERTY(EditAnywhere, Category = "Option User Widget")
+	FString KeyMappingWidgetName = FString();
 // End of Key Mappings
 	
 };
