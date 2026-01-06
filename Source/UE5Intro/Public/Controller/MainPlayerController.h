@@ -99,5 +99,12 @@ public:
 	void SetMouseSensitivityX(float InSensitivity);
 	void SetMouseSensitivityY(float InSensitivity);
 // End of Option Menu Mouse Sensitivity
+
+
+// Key Mappings
+public:
+	void OnUpdateMappableKey(FName MappingName, FKey NewKey);
+
+// End of Key Mappings
 	
 };

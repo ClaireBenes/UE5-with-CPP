@@ -11,11 +11,18 @@ class UE5INTRO_API UKeyMappingCAW : public UCommonActivatableWidget
 {
 	GENERATED_BODY()
 
+protected:
+	virtual void NativeConstruct() override;
+
 // Keybindings
 public:
 	void SetInputName(FName InName);
 	void SetInputDisplayName(FText InDisplayName);
 	void SetInputSelector(FEnhancedActionKeyMapping& GivenKey);
+
+protected:
+	UFUNCTION()
+	void OnKeySelected(struct FInputChord SelectedKey);
 
 protected:
 	UPROPERTY(meta = ( BindWidgetOptional ))

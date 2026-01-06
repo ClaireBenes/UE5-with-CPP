@@ -258,3 +258,22 @@ void AMainPlayerController::SetMouseSensitivityY(float InSensitivity)
 {
 	MouseSensitivityY = InSensitivity;
 }
+
+void AMainPlayerController::OnUpdateMappableKey(FName MappingName, FKey NewKey)
+{
+	// Check pointer
+	if( !InputUserSettings.IsValid() )
+	{
+		return;
+	}
+
+	// Prepare the structs to update the key
+	FGameplayTagContainer FailureReason;
+	FMapPlayerKeyArgs Args = {};
+	Args.MappingName = MappingName;
+	Args.Slot = EPlayerMappableKeySlot::First;
+	Args.NewKey = NewKey;
+
+	// Update the Key
+	InputUserSettings->MapPlayerKey(Args, FailureReason);
+}
