@@ -15,13 +15,16 @@
 #include "Controller/PickUpSpawnerController.h"
 
 // UI
+#include "UI/Menu/KeyMappingCAW.h"
 #include "UI/Menu/BaseMenuCommonUserWidget.h"
 #include "UI/MenuNavigationDataAsset.h"
 #include "CommonActivatableWidget.h"
 
 // Settings
 #include "Settings/UIParametersSubsystem.h"
+#include "Settings/OptionSaveGame.h"
 #include "GameFramework/GameUserSettings.h"
+#include "Kismet/GameplayStatics.h"
 
 
 void AMainPlayerController::SetupInputComponent()
@@ -125,6 +128,9 @@ void AMainPlayerController::BeginPlay()
 			InputUserSettings->RegisterInputMappingContext(InputMappingContext);
 		}
 	}
+
+	// Load Option Data
+	LoadOptionData();
 }
 
 void AMainPlayerController::MovePlayer(const struct FInputActionValue& Value)
@@ -258,11 +264,13 @@ float AMainPlayerController::GetMouseSensitivityY() const
 void AMainPlayerController::SetMouseSensitivityX(float InSensitivity)
 {
 	MouseSensitivityX = InSensitivity;
+	SaveOptionData();
 }
 
 void AMainPlayerController::SetMouseSensitivityY(float InSensitivity)
 {
 	MouseSensitivityY = InSensitivity;
+	SaveOptionData();
 }
 
 void AMainPlayerController::OnUpdateMappableKey(FName MappingName, FKey NewKey)
@@ -295,4 +303,82 @@ void AMainPlayerController::OnUpdateMappableKey(FName MappingName, FKey NewKey)
 
 void AMainPlayerController::OnResetMappableKey(FName MappingName, FEnhancedActionKeyMapping& DisplayKey, UKeyMappingCAW* KeyMappingWidget)
 {
+	// Check pointer
+	if( !InputUserSettings.IsValid() )
+	{
+		return;
+	}
+
+	// Get the Key Profile to find the default Key
+	UEnhancedPlayerMappableKeyProfile* KeyProfile = InputUserSettings->GetActiveKeyProfile();
+	if( !KeyProfile )
+	{
+		return;
+	}
+
+	// Prepare the Map Player Key Argument Struct
+	FMapPlayerKeyArgs CurrentKeyArgument;
+	CurrentKeyArgument.Slot = EPlayerMappableKeySlot::First;
+	CurrentKeyArgument.NewKey = DisplayKey.Key;
+	CurrentKeyArgument.MappingName = MappingName;
+
+	// Get Default Key Mapping Struct
+	FPlayerKeyMapping* DefaultKeyMapping = KeyProfile->FindKeyMapping(CurrentKeyArgument);
+	if( !DefaultKeyMapping )
+	{
+		return;
+	}
+
+	// Get Default Key and apply it
+	FKey DefaultKey = DefaultKeyMapping->GetDefaultKey();
+	OnUpdateMappableKey(MappingName, DefaultKey);
+
+	// Update back the widget display
+	DisplayKey.Key = DefaultKey; // We're using the reference of this struct, so we can update it
+	KeyMappingWidget->SetInputSelector(DisplayKey);
+}
+
+void AMainPlayerController::SaveOptionData()
+{
+	// Try to get the save file
+	UOptionSaveGame* OptionSaveGame = nullptr;
+	if( UGameplayStatics::DoesSaveGameExist(SaveOptionSlotName, 0) )
+	{
+		OptionSaveGame = Cast<UOptionSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveOptionSlotName, 0));
+	}
+	// If this doesn't exist, let's create it
+	else
+	{
+		OptionSaveGame = Cast<UOptionSaveGame>(UGameplayStatics::CreateSaveGameObject(UOptionSaveGame::StaticClass()));
+	}
+	if( !OptionSaveGame )
+	{
+		return;
+	}
+
+	// Save our data in our save game class
+	OptionSaveGame->SetMouseSensitivityX(MouseSensitivityX);
+	OptionSaveGame->SetMouseSensitivityY(MouseSensitivityY);
+
+	// Apply the save to the slot
+	UGameplayStatics::SaveGameToSlot(OptionSaveGame, SaveOptionSlotName, 0);
+}
+
+void AMainPlayerController::LoadOptionData()
+{
+	// Try to get the save file
+	UOptionSaveGame* OptionSaveGame = nullptr;
+	if( UGameplayStatics::DoesSaveGameExist(SaveOptionSlotName, 0) )
+	{
+		OptionSaveGame = Cast<UOptionSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveOptionSlotName, 0));
+	}
+	// If this doesn't exist, return
+	if( !OptionSaveGame )
+	{
+		return;
+	}
+
+	// Load Data
+	MouseSensitivityX = OptionSaveGame->GetMouseSensitivityX();
+	MouseSensitivityY = OptionSaveGame->GetMouseSensitivityY();
 }

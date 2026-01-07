@@ -107,4 +107,13 @@ public:
 	void OnResetMappableKey(FName MappingName, struct FEnhancedActionKeyMapping& DisplayKey, class UKeyMappingCAW* KeyMappingWidget);
 // End of Key Mappings
 	
+// Save Data
+protected:
+	UPROPERTY(EditInstanceOnly, Category = "Save")
+	FString SaveOptionSlotName = "OptionSaveSlot";
+
+public:
+	void SaveOptionData();
+	void LoadOptionData();
+// End of Save Data
 };
