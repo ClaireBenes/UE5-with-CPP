@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Gameplay/GoalEnum.h"
 #include "ScoreComponent.generated.h"
 
 

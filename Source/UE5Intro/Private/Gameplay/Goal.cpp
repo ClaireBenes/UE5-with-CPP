@@ -4,6 +4,7 @@
 #include "Components/BoxComponent.h"
 #include "Gameplay/PickUpComponent.h"
 #include "Components/PointLightComponent.h"
+#include "Components/SphereComponent.h"
 
 // Engine
 #include "UObject/ObjectSaveContext.h"
@@ -25,6 +26,13 @@ AGoal::AGoal(const FObjectInitializer& ObjectInitializer)
 	if( PointLightComponent )
 	{
 		PointLightComponent->SetupAttachment(RootComponent);
+	}
+
+	// Create Sphere Collision for AI
+	AIBehaviorCollisionSphere = ObjectInitializer.CreateOptionalDefaultSubobject<USphereComponent>(this, TEXT("AI Behaviour Sphere"));
+	if( AIBehaviorCollisionSphere )
+	{
+		AIBehaviorCollisionSphere->SetupAttachment(RootComponent);
 	}
 }
 
@@ -50,17 +58,31 @@ void AGoal::BeginPlay()
 	{
 		CollisionBox->OnComponentBeginOverlap.AddUniqueDynamic(this, &AGoal::OnGoalOverlap);
 	}
+
+	// Bind to the overlap event
+	if( AIBehaviorCollisionSphere )
+	{
+		AIBehaviorCollisionSphere->OnComponentBeginOverlap.AddUniqueDynamic(this, &AGoal::OnAIBehaviourSphereBeginOverlap);
+		AIBehaviorCollisionSphere->OnComponentEndOverlap.AddUniqueDynamic(this, &AGoal::OnAIBehaviourSphereEndOverlap);
+	}
 }
 
 void AGoal::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	Super::EndPlay(EndPlayReason);
-
 	// Bind from the overlap event
 	if( CollisionBox )
 	{
 		CollisionBox->OnComponentBeginOverlap.RemoveDynamic(this, &AGoal::OnGoalOverlap);
 	}
+
+	// Unbind to the overlap event
+	if( AIBehaviorCollisionSphere )
+	{
+		AIBehaviorCollisionSphere->OnComponentBeginOverlap.RemoveDynamic(this, &AGoal::OnAIBehaviourSphereBeginOverlap);
+		AIBehaviorCollisionSphere->OnComponentEndOverlap.RemoveDynamic(this, &AGoal::OnAIBehaviourSphereEndOverlap);
+	}
+
+	Super::EndPlay(EndPlayReason);
 }
 
 void AGoal::PreSave(FObjectPreSaveContext ObjectSaveContext)
@@ -79,7 +101,7 @@ void AGoal::PreSave(FObjectPreSaveContext ObjectSaveContext)
 	}
 }
 
-ETeamType AGoal::GetTeamType()
+ETeamType AGoal::GetTeamType() const
 {
 	return TeamType;
 }
@@ -168,4 +190,14 @@ void AGoal::UpdatePointLight()
 	}
 
 	PointLightComponent->SetLightColor(LightColor);
+}
+
+void AGoal::OnAIBehaviourSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	OnAISphereOverlap.Broadcast(true, TeamType, OtherActor);
+}
+
+void AGoal::OnAIBehaviourSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	OnAISphereOverlap.Broadcast(false, TeamType, OtherActor);
 }

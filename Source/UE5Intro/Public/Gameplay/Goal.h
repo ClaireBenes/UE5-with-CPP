@@ -2,18 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Gameplay/GoalEnum.h"
 #include "Goal.generated.h"
 
-UENUM()
-enum class ETeamType : uint8
-{
-	None UMETA(Hidden),
-	Blue,
-	Red,
-	MAX UMETA(Hidden),
-};
-
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGoalScoredDelegate, ETeamType, TeamType);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FAISphereOverlapDelegate, bool, bIsOverlap, ETeamType, Team, AActor*, ActorOverlaped);
 
 UCLASS(Abstract)
 class UE5INTRO_API AGoal : public AActor
@@ -31,7 +24,7 @@ protected:
 
 // Team Score
 public:
-	ETeamType GetTeamType();
+	ETeamType GetTeamType() const;
 
 protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
@@ -74,4 +67,23 @@ protected:
 protected:
 	void UpdatePointLight();
 // End of Light
+
+// AI Sphere
+protected: 
+	UFUNCTION()
+	void OnAIBehaviourSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+		const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnAIBehaviourSphereEndOverlap(UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+public:
+	FAISphereOverlapDelegate OnAISphereOverlap;
+
+protected:
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	TObjectPtr<class USphereComponent> AIBehaviorCollisionSphere = nullptr;
+// End of AI Sphere
 };

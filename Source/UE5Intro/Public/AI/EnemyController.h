@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "Gameplay/GoalEnum.h"
 #include "EnemyController.generated.h"
 
 
@@ -29,6 +30,26 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Enemy Controller|Behavior Tree|Blackboard Names")
 	FName PlayerHasPickUpBBName = "PlayerHasPickUp";
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Enemy Controller|Behavior Tree|Blackboard Names")
+	FName EnemyIsInDefenseSphereBBName = "EnemyIsInDefenseSphere";
+	UPROPERTY(EditDefaultsOnly, Category = "Enemy Controller|Behavior Tree|Blackboard Names")
+	FName EnemyIsInAttackSphereBBName = "EnemyIsInAttackSphere";
+
+	UPROPERTY(EditDefaultsOnly, Category = "Enemy Controller|Behavior Tree|Blackboard Names")
+	FName PlayerGoalBBName = "PlayerGoal";
+	UPROPERTY(EditDefaultsOnly, Category = "Enemy Controller|Behavior Tree|Blackboard Names")
+	FName EnemyGoalBBName = "EnemyGoal";
 // End of Behaviour Tree and Blackboard values
+
+// Goal
+protected:
+	UFUNCTION()
+	void OnActorOverlapAISphere(bool bIsOverlap, ETeamType InTeam, AActor* ActorOverlaped);
+
+protected:
+	UPROPERTY(VisibleAnywhere, Category = "Enemy Controller")
+	ETeamType Team = ETeamType::None;
+// End of Goal
 	
 };

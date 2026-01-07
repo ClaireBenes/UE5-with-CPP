@@ -3,6 +3,5 @@
 AMainCharacter::AMainCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
 }
 

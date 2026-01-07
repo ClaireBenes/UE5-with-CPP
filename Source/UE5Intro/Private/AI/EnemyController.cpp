@@ -1,11 +1,13 @@
 // AI
 #include "AI/EnemyController.h"
+#include "AI/EnemyCharacter.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
 // Gameplay
 #include "Gameplay/GravityGun/GravityGunComponent.h"
 #include "Gameplay/MainCharacter.h"
+#include "Gameplay/Goal.h"
 #include "Kismet/GameplayStatics.h"
 
 AEnemyController::AEnemyController(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -26,6 +28,29 @@ void AEnemyController::BeginPlay()
 			GravityGunComp->OnPlayerHasPickUp.AddUniqueDynamic(this, &AEnemyController::OnPlayerHasPickUp);
 		}
 	}
+
+	// Get Enemy Character
+	if( AEnemyCharacter* EnemyCharacter = Cast<AEnemyCharacter>(GetCharacter()) )
+	{
+		// Get Goals
+		AGoal* PlayerGoal = EnemyCharacter->GetPlayerGoal();
+		AGoal* EnemyGoal = EnemyCharacter->GetEnemyGoal();
+
+		// Check Pointers
+		if( PlayerGoal && EnemyGoal && Blackboard )
+		{
+			// Get Team
+			Team = EnemyGoal->GetTeamType();
+
+			// Bind on Goal Events
+			PlayerGoal->OnAISphereOverlap.AddUniqueDynamic(this, &AEnemyController::OnActorOverlapAISphere);
+			EnemyGoal->OnAISphereOverlap.AddUniqueDynamic(this, &AEnemyController::OnActorOverlapAISphere);
+
+			// Set BB references
+			Blackboard->SetValueAsObject(EnemyGoalBBName, EnemyGoal);
+			Blackboard->SetValueAsObject(PlayerGoalBBName, PlayerGoal);
+		}
+	}
 }
 
 void AEnemyController::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -37,6 +62,22 @@ void AEnemyController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		if( UGravityGunComponent* GravityGunComp = Player->FindComponentByClass<UGravityGunComponent>() )
 		{
 			GravityGunComp->OnPlayerHasPickUp.RemoveDynamic(this, &AEnemyController::OnPlayerHasPickUp);
+		}
+	}
+
+	// Get Enemy Character
+	if( AEnemyCharacter* EnemyCharacter = Cast<AEnemyCharacter>(GetCharacter()) )
+	{
+		// Get Goals
+		AGoal* PlayerGoal = EnemyCharacter->GetPlayerGoal();
+		AGoal* EnemyGoal = EnemyCharacter->GetEnemyGoal();
+
+		// Check Pointers
+		if( PlayerGoal && EnemyGoal )
+		{
+			// Bind on Goal Events
+			PlayerGoal->OnAISphereOverlap.RemoveDynamic(this, &AEnemyController::OnActorOverlapAISphere);
+			EnemyGoal->OnAISphereOverlap.RemoveDynamic(this, &AEnemyController::OnActorOverlapAISphere);
 		}
 	}
 
@@ -61,4 +102,16 @@ void AEnemyController::OnPlayerHasPickUp(bool bInPlayerHasPickUp)
 	{
 		Blackboard->SetValueAsBool(PlayerHasPickUpBBName,bInPlayerHasPickUp);
 	}
+}
+
+void AEnemyController::OnActorOverlapAISphere(bool bIsOverlap, ETeamType InTeam, AActor* ActorOverlaped)
+{
+	// Check if it's the Enemy
+	if( !ActorOverlaped->IsA(AEnemyCharacter::StaticClass()) || !Blackboard )
+	{
+		return;
+	}
+
+	// Update the BB Value
+	Blackboard->SetValueAsBool(InTeam == Team ? EnemyIsInDefenseSphereBBName : EnemyIsInAttackSphereBBName, bIsOverlap);
 }
