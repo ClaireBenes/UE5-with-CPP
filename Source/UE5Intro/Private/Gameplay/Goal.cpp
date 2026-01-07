@@ -201,3 +201,8 @@ void AGoal::OnAIBehaviourSphereEndOverlap(UPrimitiveComponent* OverlappedCompone
 {
 	OnAISphereOverlap.Broadcast(false, TeamType, OtherActor);
 }
+
+USphereComponent* AGoal::GetAIBehaviorCollisionSphere() const
+{
+	return AIBehaviorCollisionSphere;
+}

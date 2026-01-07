@@ -9,6 +9,7 @@
 #include "Gameplay/MainCharacter.h"
 #include "Gameplay/Goal.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/SphereComponent.h"
 
 AEnemyController::AEnemyController(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -49,6 +50,18 @@ void AEnemyController::BeginPlay()
 			// Set BB references
 			Blackboard->SetValueAsObject(EnemyGoalBBName, EnemyGoal);
 			Blackboard->SetValueAsObject(PlayerGoalBBName, PlayerGoal);
+
+			// Check if the enemy is already inside the sphere
+			if( USphereComponent* GoalSphereComponent = EnemyGoal->GetAIBehaviorCollisionSphere() )
+			{
+				TArray<AActor*> OverlappingActors;
+				GoalSphereComponent->GetOverlappingActors(OverlappingActors, AEnemyCharacter::StaticClass());
+				if( !OverlappingActors.IsEmpty() )
+				{
+					// Update the BB Value
+					Blackboard->SetValueAsBool(EnemyIsInDefenseSphereBBName, true);
+				}
+			}
 		}
 	}
 }

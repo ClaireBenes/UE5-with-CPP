@@ -80,6 +80,9 @@ protected:
 		AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 public:
+	class USphereComponent* GetAIBehaviorCollisionSphere() const;
+
+public:
 	FAISphereOverlapDelegate OnAISphereOverlap;
 
 protected:
