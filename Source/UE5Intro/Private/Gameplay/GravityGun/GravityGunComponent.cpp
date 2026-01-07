@@ -213,6 +213,9 @@ void UGravityGunComponent::ReleasePickUp(bool bThrow )
 
 	PickUpThrowForce = PickUpMinThrowForce;
 	PickUpCurrentThrowTime = 0.0f;
+
+	// Boradcast
+	OnPlayerHasPickUp.Broadcast(false);
 }
 
 void UGravityGunComponent::OnHoldPickUpDestroy()
@@ -300,6 +303,7 @@ void UGravityGunComponent::TakePickUp(TWeakObjectPtr<AActor> PickUp)
 	// Update and broadcast pick up count
 	NumPickUpTaken++;
 	OnPickUpTaken.Broadcast(NumPickUpTaken);
+	OnPlayerHasPickUp.Broadcast(true);
 }
 
 float UGravityGunComponent::GetTimeToReachMaxThrowForce() const

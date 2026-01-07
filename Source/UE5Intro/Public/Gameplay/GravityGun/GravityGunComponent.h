@@ -6,6 +6,7 @@
 #include "GravityGunComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPickUpTakenDelegate, int, NumPickUpTaken);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayerHasPickUpDelegate, bool, bPlayerHasPickUp);
 
 UCLASS(Abstract, Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UE5INTRO_API UGravityGunComponent : public UActorComponent
@@ -79,6 +80,9 @@ protected:
 // End of Debug
 
 // Pick Up
+public:
+	FPlayerHasPickUpDelegate OnPlayerHasPickUp;
+
 public:
 	TWeakObjectPtr<AActor> GetCurrentPickUp();
 	void TakePickUp(TWeakObjectPtr<AActor> PickUp);
