@@ -152,6 +152,11 @@ void AEnemyController::OnActorOverlapAISphere(bool bIsOverlap, ETeamType InTeam,
 	Blackboard->SetValueAsBool(InTeam == Team ? EnemyIsInDefenseSphereBBName : EnemyIsInAttackSphereBBName, bIsOverlap);
 }
 
+float AEnemyController::GetMaxDistanceFromGoal() const
+{
+	return MaxDistanceFromGoal;
+}
+
 float AEnemyController::GetAISpeedByType(EAISpeedType InType) const
 {
 	// Check for Data Asset

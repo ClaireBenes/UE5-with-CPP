@@ -60,9 +60,14 @@ protected:
 	UFUNCTION()
 	void OnActorOverlapAISphere(bool bIsOverlap, ETeamType InTeam, AActor* ActorOverlaped);
 
+public:
+	float GetMaxDistanceFromGoal() const;
+
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Enemy Controller")
 	ETeamType Team = ETeamType::None;
+	UPROPERTY(VisibleAnywhere, Category = "Enemy Controller|Goal")
+	float MaxDistanceFromGoal = 200.0f;
 // End of Goal
 
 // Speed Data Asset
