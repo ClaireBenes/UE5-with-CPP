@@ -24,4 +24,9 @@ public:
 	class AGoal* GetEnemyGoal() const;
 // End of Goal
 
+// Speed
+public:
+	void SetMaxWalkSpeed(float NewSpeed);
+// end of Speed
+
 };

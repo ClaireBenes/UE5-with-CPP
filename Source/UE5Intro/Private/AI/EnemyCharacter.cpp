@@ -1,4 +1,6 @@
 #include "AI/EnemyCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
 
 AEnemyCharacter::AEnemyCharacter()
 {
@@ -13,5 +15,10 @@ AGoal* AEnemyCharacter::GetPlayerGoal() const
 AGoal* AEnemyCharacter::GetEnemyGoal() const
 {
 	return EnemyGoal;
+}
+
+void AEnemyCharacter::SetMaxWalkSpeed(float NewSpeed)
+{
+	GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
 }
 

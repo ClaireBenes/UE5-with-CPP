@@ -1,6 +1,7 @@
 // AI
 #include "AI/EnemyController.h"
 #include "AI/EnemyCharacter.h"
+#include "AI/AISpeedDataAsset.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
@@ -63,6 +64,28 @@ void AEnemyController::BeginPlay()
 				}
 			}
 		}
+	}
+
+	// Example for Static Array with enum
+	for( const FDummyStruct& Dummy : DummyArray )
+	{
+		DummyStaticArray[(uint8)Dummy.DummyType] = Dummy;
+	}
+
+	// Example of how to use DummyStaticArray
+	for( const FDummyStruct& Dummy : DummyStaticArray )
+	{
+		FString EnumName;
+		UEnum::GetValueAsString<EDummyType>(Dummy.DummyType, EnumName);
+		//UE_LOG(LogTemp, Log, TEXT("%s : %f"), *EnumName, Dummy.SpeedDummy);
+	}
+	// Example of how to use one event
+	EDummyType TypeExample7 = DummyStaticArray[(uint8) EDummyType::Example7].DummyType;
+	if( TypeExample7 != EDummyType::NONE )
+	{
+		FString EnumName;
+		UEnum::GetValueAsString<EDummyType>(DummyStaticArray[(uint8) EDummyType::Example7].DummyType, EnumName);
+		//UE_LOG(LogTemp, Display, TEXT("%s : %f"), *EnumName, DummyStaticArray[(uint8) EDummyType::Example7].SpeedDummy);
 	}
 }
 
@@ -127,4 +150,14 @@ void AEnemyController::OnActorOverlapAISphere(bool bIsOverlap, ETeamType InTeam,
 
 	// Update the BB Value
 	Blackboard->SetValueAsBool(InTeam == Team ? EnemyIsInDefenseSphereBBName : EnemyIsInAttackSphereBBName, bIsOverlap);
+}
+
+float AEnemyController::GetAISpeedByType(EAISpeedType InType) const
+{
+	// Check for Data Asset
+	if( AISpeedDataAsset )
+	{
+		return AISpeedDataAsset->SpeedByTypeMap[(uint8) InType];
+	}
+	return 0.0f;
 }

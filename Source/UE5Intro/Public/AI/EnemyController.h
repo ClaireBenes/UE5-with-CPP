@@ -3,8 +3,21 @@
 #include "CoreMinimal.h"
 #include "AIController.h"
 #include "Gameplay/GoalEnum.h"
+#include "AI/AIEnums.h"
 #include "EnemyController.generated.h"
 
+USTRUCT(BlueprintType)
+struct FDummyStruct
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	EDummyType DummyType = EDummyType::NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float SpeedDummy = 0.f;
+};
 
 UCLASS(Abstract)
 class UE5INTRO_API AEnemyController : public AAIController
@@ -51,5 +64,20 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Enemy Controller")
 	ETeamType Team = ETeamType::None;
 // End of Goal
+
+// Speed Data Asset
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Enemy Controller|Speed")
+	TObjectPtr<class UAISpeedDataAsset> AISpeedDataAsset = nullptr;
+
+public:
+	float GetAISpeedByType(EAISpeedType InType) const;
+// End of Speed Data Asset
 	
+// Enum Example
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Enemy Controller|TEST")
+	TArray <FDummyStruct> DummyArray;
+	TStaticArray <FDummyStruct, (uint8)EDummyType::MAX> DummyStaticArray;
+// End of Enum Example
 };
