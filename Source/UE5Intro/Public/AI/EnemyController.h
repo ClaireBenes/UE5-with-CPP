@@ -53,6 +53,9 @@ protected:
 	FName PlayerGoalBBName = "PlayerGoal";
 	UPROPERTY(EditDefaultsOnly, Category = "Enemy Controller|Behavior Tree|Blackboard Names")
 	FName EnemyGoalBBName = "EnemyGoal";
+
+	UPROPERTY(EditDefaultsOnly, Category = "Enemy Controller|Behavior Tree|Blackboard Names")
+	FName CanTakePickUpBBName = "CanTakePickUp";
 // End of Behaviour Tree and Blackboard values
 
 // Goal
@@ -78,6 +81,17 @@ protected:
 public:
 	float GetAISpeedByType(EAISpeedType InType) const;
 // End of Speed Data Asset
+
+// Pick Up Timer
+protected:
+	FTimerHandle PickUpTimer;
+
+protected:
+	void OnPickUpTimerEnd();
+
+public:
+	void StartPickUpTimer(float InTime);
+// End of Pick Up Timer
 	
 // Enum Example
 protected:

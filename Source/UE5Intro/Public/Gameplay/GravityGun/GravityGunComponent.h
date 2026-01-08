@@ -30,7 +30,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;	
 
 protected:
-	TWeakObjectPtr<class AMainCharacter> Character = nullptr;
+	TWeakObjectPtr<class ACharacter> Character = nullptr;
 	TWeakObjectPtr<class APlayerCameraManager> CharacterCameraManager = nullptr;
 
 // Curve
@@ -85,7 +85,7 @@ public:
 
 public:
 	TWeakObjectPtr<AActor> GetCurrentPickUp();
-	void TakePickUp(TWeakObjectPtr<AActor> PickUp);
+	void PlacePickUpInHands(TWeakObjectPtr<AActor> PickUp);
 
 	UFUNCTION(BlueprintPure, Category = "Gravity Gun")
 	float GetTimeToReachMaxThrowForce() const;
@@ -131,5 +131,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Gravity Gun|Data Asset")
 	TObjectPtr<UGravityDataAsset> GravityGunDataAsset = nullptr;
 // End of Data Asset
+
+// AI Pick Up
+protected:
+	bool bIsPlayer = false;
+
+public:
+	bool AITakePickUp(const FVector RaycastStart, const FVector RaycastEnd);
+	float GetRayCastSize() const;
+// End of AI Pick Up
 
 };

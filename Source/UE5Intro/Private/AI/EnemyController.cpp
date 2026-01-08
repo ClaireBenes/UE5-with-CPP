@@ -166,3 +166,31 @@ float AEnemyController::GetAISpeedByType(EAISpeedType InType) const
 	}
 	return 0.0f;
 }
+
+void AEnemyController::OnPickUpTimerEnd()
+{
+	// Update BB Value
+	if( Blackboard )
+	{
+		Blackboard->SetValueAsBool(CanTakePickUpBBName, true);
+	}
+
+	// Clear Timer
+	GetCharacter()->GetWorldTimerManager().ClearTimer(PickUpTimer);
+}
+
+void AEnemyController::StartPickUpTimer(float InTime)
+{
+	// Check BB
+	if( !Blackboard )
+	{
+		return;
+	}
+
+	// Update BB Value
+	Blackboard->SetValueAsBool(CanTakePickUpBBName, false);
+
+	// Prepare Timer
+	GetCharacter()->GetWorldTimerManager().ClearTimer(PickUpTimer);
+	GetCharacter()->GetWorldTimerManager().SetTimer(PickUpTimer, this, &AEnemyController::OnPickUpTimerEnd, InTime, false);
+}

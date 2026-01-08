@@ -221,7 +221,7 @@ void UPickUpSpawnerComponent::OnSpawnPickUp( EPickUpType PickUpType)
 	if( !GravityGunComponent->GetCurrentPickUp().IsValid() )
 	{
 		// Place Pick Up in Player Hands
-		GravityGunComponent->TakePickUp(NewPickUp);
+		GravityGunComponent->PlacePickUpInHands(NewPickUp);
 	}
 }
 

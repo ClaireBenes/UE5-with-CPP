@@ -40,10 +40,16 @@ void UGravityGunComponent::BeginPlay()
 	CharacterCameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 
 	// Get Character
-	Character = Cast<AMainCharacter>(GetOwner());
+	Character = Cast<ACharacter>(GetOwner());
 
 	// Convert collision channel
 	GravityGunCollisionChannel = UEngineTypes::ConvertToCollisionChannel(GravityGunTraceChannel);
+
+	// Check if it's the player
+	if( Character.IsValid() )
+	{
+		bIsPlayer = Character->IsA<AMainCharacter>();
+	}
 }
 
 void UGravityGunComponent::OnUpdateRaycastSize()
@@ -81,31 +87,7 @@ void UGravityGunComponent::OnTakeObjectInputPressed()
 	const FVector RaycastStart = CharacterCameraManager->GetCameraLocation();
 	const FVector RaycastEnd = RaycastStart + ( CharacterCameraManager->GetActorForwardVector() * RaycastSize );
 
-	// Prepare Raycast Structs
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(Character.Get());
-	FHitResult HitResult;
-
-	// Launch debug raycast
-#if !UE_BUILD_SHIPPING
-	if( bDrawDebugRaycast )
-	{
-		DrawDebugLine(GetWorld(), RaycastStart, RaycastEnd, FColor::Red, false, DrawDebugTime, 0, 1.0f);
-	}
-#endif
-
-	// Launch the raycast
-	const bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, RaycastStart, RaycastEnd, GravityGunCollisionChannel, Params);
-	if( !bHit )
-	{
-		return;
-	}
-
-	const FString HitActorName = UKismetSystemLibrary::GetDisplayName(HitResult.GetActor());
-
-	// Get Pick Up
-	CurrentPickUp = HitResult.GetActor();
-	TakePickUp(CurrentPickUp);
+	AITakePickUp(RaycastStart, RaycastEnd);
 }
 
 void UGravityGunComponent::OnThrowObjectInputPressed()
@@ -151,12 +133,24 @@ void UGravityGunComponent::UpdatePickUpLocation()
 	}
 
 	// Compute and apply new transform
-	const FRotator CameraRotation = CharacterCameraManager->GetCameraRotation();
-	const FVector CameraLocation = CharacterCameraManager->GetCameraLocation();
-	const FVector CameraForward = CharacterCameraManager->GetActorForwardVector();
+	FVector NewPickUpLocation;
+	FRotator NewPickUpRotation;
 
-	const FVector NewPickUpLocation = CameraLocation + ( CameraForward * PickUpHoldDistance );
-	CurrentPickUp->SetActorLocationAndRotation(NewPickUpLocation, CameraRotation);
+	if( bIsPlayer )
+	{
+		const FVector CameraLocation = CharacterCameraManager->GetCameraLocation();
+		const FVector CameraForward = CharacterCameraManager->GetActorForwardVector();
+		NewPickUpRotation = CharacterCameraManager->GetCameraRotation();
+		NewPickUpLocation = CameraLocation + ( CameraForward * PickUpHoldDistance );
+	}
+	else
+	{
+		NewPickUpLocation = ( Character->GetActorLocation() + FVector::UpVector * 30.0f ) 
+			+ ( Character->GetActorForwardVector() * PickUpHoldDistance );
+		NewPickUpRotation = Character->GetActorRotation();
+	}
+
+	CurrentPickUp->SetActorLocationAndRotation(NewPickUpLocation, NewPickUpRotation);
 }
 
 void UGravityGunComponent::ReleasePickUp(bool bThrow )
@@ -215,12 +209,51 @@ void UGravityGunComponent::ReleasePickUp(bool bThrow )
 	PickUpCurrentThrowTime = 0.0f;
 
 	// Boradcast
-	OnPlayerHasPickUp.Broadcast(false);
+	if( bIsPlayer )
+	{
+		OnPlayerHasPickUp.Broadcast(false);
+	}
 }
 
 void UGravityGunComponent::OnHoldPickUpDestroy()
 {
 	ReleasePickUp();
+}
+
+bool UGravityGunComponent::AITakePickUp(const FVector RaycastStart, const FVector RaycastEnd)
+{
+	// Prepare Raycast Structs
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(Character.Get());
+	FHitResult HitResult;
+
+	// Launch debug raycast
+#if !UE_BUILD_SHIPPING
+	if( bDrawDebugRaycast )
+	{
+		DrawDebugLine(GetWorld(), RaycastStart, RaycastEnd, FColor::Red, false, DrawDebugTime, 0, 1.0f);
+	}
+#endif
+
+	// Launch the raycast
+	const bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, RaycastStart, RaycastEnd, GravityGunCollisionChannel, Params);
+	if( !bHit )
+	{
+		return false;
+	}
+
+	const FString HitActorName = UKismetSystemLibrary::GetDisplayName(HitResult.GetActor());
+
+	// Get Pick Up
+	CurrentPickUp = HitResult.GetActor();
+	PlacePickUpInHands(CurrentPickUp);
+
+	return true;
+}
+
+float UGravityGunComponent::GetRayCastSize() const
+{
+	return RaycastSize;
 }
 
 void UGravityGunComponent::OnChangeRaycastSize(const float Value)
@@ -249,7 +282,7 @@ TWeakObjectPtr<AActor> UGravityGunComponent::GetCurrentPickUp()
 	return CurrentPickUp;
 }
 
-void UGravityGunComponent::TakePickUp(TWeakObjectPtr<AActor> PickUp)
+void UGravityGunComponent::PlacePickUpInHands(TWeakObjectPtr<AActor> PickUp)
 {
 	// Get Pick Up
 	if( !PickUp.IsValid() )
@@ -301,9 +334,12 @@ void UGravityGunComponent::TakePickUp(TWeakObjectPtr<AActor> PickUp)
 	}
 
 	// Update and broadcast pick up count
-	NumPickUpTaken++;
-	OnPickUpTaken.Broadcast(NumPickUpTaken);
-	OnPlayerHasPickUp.Broadcast(true);
+	if( bIsPlayer )
+	{	
+		NumPickUpTaken++;
+		OnPickUpTaken.Broadcast(NumPickUpTaken);
+		OnPlayerHasPickUp.Broadcast(true);
+	}
 }
 
 float UGravityGunComponent::GetTimeToReachMaxThrowForce() const
