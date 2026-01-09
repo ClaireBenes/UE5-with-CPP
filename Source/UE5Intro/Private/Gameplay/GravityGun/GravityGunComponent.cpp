@@ -153,7 +153,7 @@ void UGravityGunComponent::UpdatePickUpLocation()
 	CurrentPickUp->SetActorLocationAndRotation(NewPickUpLocation, NewPickUpRotation);
 }
 
-void UGravityGunComponent::ReleasePickUp(bool bThrow )
+void UGravityGunComponent::ReleasePickUp( bool bThrow )
 {
 	// Unbind from the destruction event if necessary
 	if( CurrentPickUpComponent.IsValid() && ( CurrentPickUpComponent->GetPickUpType() == EPickUpType::DestroyAfterPickUp ) )
@@ -168,10 +168,23 @@ void UGravityGunComponent::ReleasePickUp(bool bThrow )
 		CurrentPickUpStaticMesh->SetSimulatePhysics(true);
 
 		// Throw the pick up
-		if( bThrow && CharacterCameraManager.IsValid() )
+		if( bThrow )
 		{
-			// Add Impulse 
-			const FVector Impulse = CharacterCameraManager->GetActorForwardVector() * PickUpThrowForce;
+			FVector Impulse;
+
+			// Check if player
+			if( bIsPlayer && CharacterCameraManager.IsValid() )
+			{
+				// Add Impulse 
+				Impulse = CharacterCameraManager->GetActorForwardVector() * PickUpThrowForce;
+			}
+			// AI
+			else if( !bIsPlayer )
+			{
+				// Add Impulse 
+				Impulse = GetOwner()->GetActorForwardVector() * (PickUpMaxThrowForce * 0.5f);
+			}		
+	
 			CurrentPickUpStaticMesh->AddImpulse(Impulse * 10 * PickUpCurrentForceMultiplier);
 
 			// Add Angular Impulse

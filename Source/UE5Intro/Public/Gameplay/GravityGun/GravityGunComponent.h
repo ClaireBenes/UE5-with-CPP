@@ -120,10 +120,12 @@ protected:
 
 protected:
 	void UpdatePickUpLocation();
-	void ReleasePickUp(bool bThrow = false);
 
 	UFUNCTION()
 	void OnHoldPickUpDestroy();
+
+public:
+	void ReleasePickUp(bool bThrow = false);
 // End of Pick Up
 
 // Data Asset
